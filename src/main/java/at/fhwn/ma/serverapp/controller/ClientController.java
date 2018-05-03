@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
+import at.fhwn.ma.serverapp.dto.ClientDto;
 import at.fhwn.ma.serverapp.dto.FrequencyDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadData;
@@ -62,9 +63,17 @@ public class ClientController {
 	public ResponseEntity<?> createClientInfo(@RequestBody Client clientInfo) {
 
 		clientService.createClientInfo(clientInfo);
-		//TODO return ID
-		
+		// TODO return ID
+
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/clients/createClient", method = RequestMethod.POST)
+	public ResponseEntity<?> createClientInfo(@RequestBody ClientDto clientDto) {
+
+	   Long id = clientService.createClient(clientDto);
+		
+		return new ResponseEntity<Long>(id, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/clients/addClientData", method = RequestMethod.POST)

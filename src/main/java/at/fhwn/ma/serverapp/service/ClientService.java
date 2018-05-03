@@ -1,36 +1,22 @@
 package at.fhwn.ma.serverapp.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
 
-import org.glassfish.hk2.utilities.reflection.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.client.RestTemplate;
 
 import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
+import at.fhwn.ma.serverapp.dto.ClientDto;
 import at.fhwn.ma.serverapp.dto.FrequencyDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadData;
 import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.model.Client;
-import at.fhwn.ma.serverapp.repository.ClientInfoRepository;
 import at.fhwn.ma.serverapp.repository.ClientRepository;
-import at.fhwn.ma.serverapp.util.ConnectionData;
+import at.fhwn.ma.serverapp.repository.ClientDataRepository;
 
 @Service
 public class ClientService implements IClientService {
@@ -39,14 +25,14 @@ public class ClientService implements IClientService {
 	final String SET_CONFIGURATION = "setConfiguration";
 
 	@Autowired
-	private ClientRepository clientRepository;
+	private ClientDataRepository clientDataRepo;
 
 	@Autowired
-	private ClientInfoRepository clientInfoRepository;
+	private ClientRepository clientRepo;
 
 	@Override
 	public List<Client> loadAll() {
-		List<Client> clients = clientInfoRepository.findAll();
+		List<Client> clients = clientRepo.findAll();
 		return clients;
 	}
 
@@ -77,7 +63,7 @@ public class ClientService implements IClientService {
 		client.setCpuUsage(workloadData.getCpuUsage());
 		client.setMemoryUsage(workloadData.getMemoryUsage());
 
-		ClientData clientCreated = clientRepository.save(client);
+		ClientData clientCreated = clientDataRepo.save(client);
 		return clientCreated;
 	}
 
@@ -92,7 +78,7 @@ public class ClientService implements IClientService {
 			client.setMemoryUsage(workloadData.getMemoryUsage());
 			client.setTimestamp(workloadData.getTimestamp());
 
-			ClientData clientDataCreated = clientRepository.save(client);
+			ClientData clientDataCreated = clientDataRepo.save(client);
 			clientData.add(clientDataCreated);
 		}
 
@@ -102,19 +88,19 @@ public class ClientService implements IClientService {
 	@Override
 	@Transactional
 	public void delete(Long id) {
-		clientRepository.delete(id);
+		clientDataRepo.delete(id);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Client findById(Long id) {
-		Client clientInfo = clientInfoRepository.findOne(id);
+		Client clientInfo = clientRepo.findOne(id);
 		return clientInfo;
 	}
 
 	@Transactional(readOnly = true)
 	public boolean exists(Long id) {
-		boolean client = clientInfoRepository.exists(id);
+		boolean client = clientRepo.exists(id);
 		return client;
 	}
 
@@ -287,5 +273,14 @@ public class ClientService implements IClientService {
 		return clientInfo.getId();
 		*/
 		return null;
+	}
+
+	public Long createClient(ClientDto clientDto) {
+		
+		Client client = new Client(clientDto);
+		
+		client = clientRepo.save(client);
+		
+		return client.getClientId();
 	}
 }

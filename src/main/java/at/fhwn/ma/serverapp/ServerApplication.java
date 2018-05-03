@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 
 import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.model.Client;
-import at.fhwn.ma.serverapp.repository.ClientInfoRepository;
+import at.fhwn.ma.serverapp.repository.ClientRepository;
 import at.fhwn.ma.serverapp.service.ClientService;
 import at.fhwn.ma.serverapp.service.IClientService;
 
