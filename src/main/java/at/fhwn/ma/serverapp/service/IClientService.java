@@ -26,8 +26,6 @@ public interface IClientService {
 
 	List<ClientData> createMultipleClients(WorkloadDTO workloadDataDTO);
 	
-	Boolean sendEcho(Long id);
-	
 	Boolean isClientAvailable(Long id);
 
 	void setUploadAndCollectionFrequency(Long id, FrequencyDTO frequencyDTO);
@@ -39,5 +37,7 @@ public interface IClientService {
 	void setConfiguration(Long id, ClientConfigDTO clientConfigDTO);
 	
 	Long createClient(ClientDto clientDto);
+
+	Boolean sendEcho(Client client);
 
 }

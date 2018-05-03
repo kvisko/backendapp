@@ -1,5 +1,6 @@
 package at.fhwn.ma.serverapp.service;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import at.fhwn.ma.serverapp.dto.WorkloadData;
 import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.model.Client;
 import at.fhwn.ma.serverapp.repository.ClientRepository;
+import at.fhwn.ma.serverapp.util.ConnectionData;
 import at.fhwn.ma.serverapp.repository.ClientDataRepository;
 
 @Service
@@ -105,16 +107,16 @@ public class ClientService implements IClientService {
 	}
 
 	@Override
-	public Boolean sendEcho(Long id) {
+	public Boolean sendEcho(Client client) {
 
 		// ClientInfo client = clientService.findById(id);
 		// String hostAddress = client.getAddress();
 		
-		System.out.println("ClientService.sendEcho for id "+id);
+		System.out.println("ClientService.sendEcho for id "+client.getClientId());
 		
 		Boolean echo = false;
 		
-		String clientHost = "http://localhost:8888";
+		String clientHost = ConnectionData.getClientHostById(client);
 		
 		String echoUrl = clientHost + SEND_ECHO + ECHO_VAL;
 		
@@ -136,12 +138,14 @@ public class ClientService implements IClientService {
 	public Boolean isClientAvailable(Long id) {
 
 		Boolean currentAvailability = false;
+		
+		Client client = clientRepo.findOne(id);
 
-		if (this.exists(id)) {
+		if (client != null) {
 
-			System.out.println("ClientService check if client " + id + " is available...");
+			System.out.println("ClientService check if client " + client.getClientAllias() + " is available...");
 
-			currentAvailability = this.sendEcho(id);
+			currentAvailability = this.sendEcho(client);
 			this.updateAvailabilityStatus(id, currentAvailability);
 
 		} else {
