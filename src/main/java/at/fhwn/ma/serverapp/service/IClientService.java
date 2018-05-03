@@ -30,7 +30,7 @@ public interface IClientService {
 	
 	Boolean isClientAvailable(Long id);
 
-	void setUploadAndCollectionFrequency(Long id, FrequencyDTO frequencyDTO);
+	HttpStatus changeFrequencyByClientId(Long id, FrequencyDTO frequencyDTO);
 
 	void updateAvailabilityStatus(Long id, Boolean currentAvailability);
 

@@ -55,17 +55,6 @@ public class ClientController {
 		return new ResponseEntity<Long>(id, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/clients/{id}", method = RequestMethod.GET)
-	@Produces({ MediaType.APPLICATION_JSON })
-	public ResponseEntity<?> getClientById(@PathVariable Long id) throws Exception {
-		
-		if (id == null || !clientService.exists(id)) {
-			throw new CustomNotFoundException("NOT FOUND");
-		}
-		Client client = clientService.findById(id);
-		return new ResponseEntity<>(new ResponseWrapper(client), HttpStatus.OK);
-	}
-
 	@RequestMapping(value = "/clients/addSingleClientData", method = RequestMethod.POST)
 	public ResponseEntity<?> addSingleClientData(@RequestBody WorkloadData workloadData) {
 		
@@ -77,8 +66,6 @@ public class ClientController {
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-
-	
 
 	@RequestMapping(value = "/clients/addClientData", method = RequestMethod.POST)
 	@Consumes({ MediaType.APPLICATION_JSON })
@@ -94,15 +81,6 @@ public class ClientController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/clients/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteClientById(@PathVariable Long id) throws Exception {
-		if (!clientService.exists(id)) {
-			throw new CustomNotFoundException("NOT FOUND");
-		}
-		clientService.delete(id);
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-
 	/* Check if client is available */
 	@RequestMapping(value = "/clients/clientAvailability/{id}", method = RequestMethod.GET)
 	public Boolean checkClientAvailability(@PathVariable Long id) {
@@ -114,15 +92,16 @@ public class ClientController {
 		return availability;
 	}
 
-	@RequestMapping(value = "/clients/setFrequencies/{id}", method = RequestMethod.POST)
-	public ResponseEntity<?> setUploadsAndCollectionFrequency(@PathVariable Long id,
+	@RequestMapping(value = "/clients/changeFrequencyByClientId/{id}", method = RequestMethod.POST)
+	public ResponseEntity<?> changeFrequencyByClientId(@PathVariable Long id,
 			@RequestBody FrequencyDTO frequencyDTO) {
 
-		clientService.setUploadAndCollectionFrequency(id, frequencyDTO);
+		HttpStatus result = clientService.changeFrequencyByClientId(id, frequencyDTO);
 
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<>(result);
 	}
 	
+	/* it works */
 	@RequestMapping(value = "/clients/getClientFrequencySettings/{id}", method = RequestMethod.GET)
 	public FrequencyDTO getClientFrequencySettings(@PathVariable Long id) {
 
@@ -141,6 +120,22 @@ public class ClientController {
 
 		return new ResponseEntity<>(result);
 
+	}
+	
+	
+
+	
+	/* OUT OF SCOPE */
+	
+	@RequestMapping(value = "/clients/{id}", method = RequestMethod.GET)
+	@Produces({ MediaType.APPLICATION_JSON })
+	public ResponseEntity<?> getClientById(@PathVariable Long id) throws Exception {
+		
+		if (id == null || !clientService.exists(id)) {
+			throw new CustomNotFoundException("NOT FOUND");
+		}
+		Client client = clientService.findById(id);
+		return new ResponseEntity<>(new ResponseWrapper(client), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/getClientDataById/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
@@ -169,6 +164,14 @@ public class ClientController {
 
 		return clientData;
 	}
-
+	
+	@RequestMapping(value = "/clients/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteClientById(@PathVariable Long id) throws Exception {
+		if (!clientService.exists(id)) {
+			throw new CustomNotFoundException("NOT FOUND");
+		}
+		clientService.delete(id);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 
 }

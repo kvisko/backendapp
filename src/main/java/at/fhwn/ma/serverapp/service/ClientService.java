@@ -1,12 +1,17 @@
 package at.fhwn.ma.serverapp.service;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -27,7 +32,7 @@ import at.fhwn.ma.serverapp.repository.ClientDataRepository;
 @Service
 public class ClientService implements IClientService {
 
-	final String SET_FREQUENCIES = "/setFrequencies/";
+	final String CHANGE_FREQUENCIES_BY_CLIENT_ID = "/client/changeFrequencies/";
 	final String SET_CONFIGURATION = "/setConfiguration";
 	final String SEND_ECHO = "/client/echoResponse/";
 	final int ECHO_VAL = 2;
@@ -65,6 +70,7 @@ public class ClientService implements IClientService {
 	@Override
 	@Transactional
 	public ClientData create(WorkloadData workloadData) {
+
 		ClientData client = new ClientData();
 		client.setCpuUsage(workloadData.getCpuUsage());
 		client.setMemoryUsage(workloadData.getMemoryUsage());
@@ -113,11 +119,7 @@ public class ClientService implements IClientService {
 	@Override
 	public Boolean sendEcho(Client client) {
 
-		// ClientInfo client = clientService.findById(id);
-		// String hostAddress = client.getAddress();
-
 		System.out.println("ClientService.sendEcho for id " + client.getClientId());
-
 		Boolean echo = false;
 
 		String clientHost = ConnectionData.getClientHostById(client);
@@ -183,54 +185,80 @@ public class ClientService implements IClientService {
 	@Override
 	public FrequencyDTO getClientFrequencySettingsById(Long id) {
 
-		 Client client = clientRepo.findOne(id);
-		 
-		 Double collectionFrequency = client.getDataCollectionFrequency();
-		 Double uploadFrequency = client.getDataUploadFrequency();
-		 
-		 FrequencyDTO frequencyDTO = new FrequencyDTO(collectionFrequency, uploadFrequency);
-		 
-		 return frequencyDTO;
-		 
+		Client client = clientRepo.findOne(id);
+
+		Double collectionFrequency = client.getDataCollectionFrequency();
+		Double uploadFrequency = client.getDataUploadFrequency();
+
+		FrequencyDTO frequencyDTO = new FrequencyDTO(collectionFrequency, uploadFrequency);
+
+		return frequencyDTO;
+
 	}
 
 	@Override
-	public void setUploadAndCollectionFrequency(Long id, FrequencyDTO frequencyDTO) {
+	public HttpStatus changeFrequencyByClientId(Long id, FrequencyDTO frequencyDTO) {
 
-		// prvi korak, kontaktirati klijenta
-		// apdejtovati library u dependencies
-		/*
-		 * 
-		 * RestTemplate restTemplate = new RestTemplate();
-		 * MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new
-		 * MappingJackson2HttpMessageConverter(); //
-		 * mappingJackson2HttpMessageConverter.setSupportedMediaTypes(Arrays.asList(
-		 * MediaType.APPLICATION_JSON));
-		 * restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
-		 * 
-		 * HttpHeaders headers = new HttpHeaders(); headers.add("Content-Type",
-		 * "application/json"); // headers.setContentType(MediaType.APPLICATION_JSON);
-		 * String postUrl = ConnectionData.CLIENT + SET_FREQUENCIES + id;
-		 * HttpEntity<Object> request = new HttpEntity<>(frequencyDTO, headers);
-		 * restTemplate.exchange(postUrl, HttpMethod.PUT, request, new
-		 * ParameterizedTypeReference<FrequencyDTO>() {});
-		 */
-		// saving updated values into a database
+		System.out.println("ClientService.changeFrequencyByClientId for id " + id);
+		System.out.println("New freq are");
+		System.out.println(frequencyDTO);
+		
+		HttpStatus resultStatus = HttpStatus.NOT_MODIFIED;
 
-		/*
-		 * Client client = clientInfoRepository.findOne(id);
-		 * client.setDataCollectionFrequency(frequencyDTO.getCollectionFrequency());
-		 * client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());
-		 * 
-		 * clientInfoRepository.save(client);
-		 */
+		Client client = clientRepo.findOne(id);
+
+		if (client != null) {
+
+			String clientHost = ConnectionData.getClientHostById(client);
+
+			String changeFreqUrl = clientHost + CHANGE_FREQUENCIES_BY_CLIENT_ID;
+
+			System.out.println("-- changeFreqUrl is " + changeFreqUrl + " --");
+
+			try {
+				
+				System.out.println("ClientService.changeFrequencyByClientId: Begin POST request");
+				System.out.println("--- CHANGE FREQ PARAMS ---");
+				
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				
+				RestTemplate restTemplate = new RestTemplate();
+						
+				ResponseEntity<FrequencyDTO> postResponse = restTemplate.postForEntity(changeFreqUrl, frequencyDTO, FrequencyDTO.class);
+				System.out.println("Response for Post Request: " + "\n" + postResponse.getBody());
+				
+				// saving updated values into a database
+				client.setDataCollectionFrequency(frequencyDTO.getCollectionFrequency());
+				client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());
+
+				clientRepo.save(client);
+				
+				return postResponse.getStatusCode();
+
+			} catch (HttpStatusCodeException e) {
+				String errorpayload = e.getResponseBodyAsString();
+				System.out.println(errorpayload);
+				return resultStatus;
+
+			} catch (RestClientException e) {
+				System.out.println("no response payload, tell the user sth else ");
+				System.out.println(e);
+				return resultStatus;
+			}
+
+		} else {
+
+			System.out.println("Client with id " + id + " does not exist...");
+			return resultStatus;
+		}
 	}
 
 	@Override
 	public HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
 
 		Client client = clientRepo.findOne(id);
-		
+
 		HttpStatus resultStatus = HttpStatus.NOT_MODIFIED;
 
 		if (client != null) {
@@ -251,7 +279,7 @@ public class ClientService implements IClientService {
 				client.setClientPort(clientConfigDTO.getPort());
 
 				clientRepo.save(client);
-				
+
 				return result;
 
 			} catch (HttpStatusCodeException e) {
@@ -283,15 +311,15 @@ public class ClientService implements IClientService {
 	}
 
 	public void insertWorkloadData(WorkloadData workloadData) {
-		
+
 		Double cpuUsage = workloadData.getCpuUsage();
 		Double memoryUsage = workloadData.getMemoryUsage();
 		Date timestamp = workloadData.getTimestamp();
 		Long clientId = workloadData.getId();
-		
+
 		ClientData client = new ClientData(cpuUsage, memoryUsage, timestamp, clientId);
-		
+
 		clientDataRepo.save(client);
-		
+
 	}
 }

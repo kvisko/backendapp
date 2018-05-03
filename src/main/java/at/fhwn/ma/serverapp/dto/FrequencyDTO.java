@@ -30,4 +30,10 @@ public class FrequencyDTO {
 		this.uploadFrequency = uploadFrequency;
 	}
 
+	@Override
+	public String toString() {
+		return "FrequencyDTO [collectionFrequency=" + collectionFrequency + ", uploadFrequency=" + uploadFrequency
+				+ "]";
+	}
+	
 }
