@@ -3,7 +3,6 @@ package at.fhwn.ma.serverapp.service;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,18 +40,16 @@ public class ClientService implements IClientService {
 		// TODO transformisati listu klijenata u WorkloadData
 
 		/*
-		Client clientInfo = this.findById(id);
-		List<ClientData> clientData = clientInfo.getClientData();
-
-		List<WorkloadData> clientWorkloadData = new ArrayList<>();
-
-		for (ClientData client : clientData) {
-			WorkloadData workloadData = new WorkloadData(client);
-			clientWorkloadData.add(workloadData);
-		}
-
-		return clientWorkloadData;
-		*/
+		 * Client clientInfo = this.findById(id); List<ClientData> clientData =
+		 * clientInfo.getClientData();
+		 * 
+		 * List<WorkloadData> clientWorkloadData = new ArrayList<>();
+		 * 
+		 * for (ClientData client : clientData) { WorkloadData workloadData = new
+		 * WorkloadData(client); clientWorkloadData.add(workloadData); }
+		 * 
+		 * return clientWorkloadData;
+		 */
 		return null;
 	}
 
@@ -113,7 +110,7 @@ public class ClientService implements IClientService {
 		final String SEND_ECHO = "/sendEcho/";
 		double value = 2;
 		Boolean echo = true;
-		
+
 		/*
 		 * RestTemplate restTemplate = new RestTemplate();
 		 * MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new
@@ -122,12 +119,10 @@ public class ClientService implements IClientService {
 		 * MediaType.APPLICATION_JSON));
 		 * restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
 		 * 
-		 *GENERATING TIMEOUT
-		 * HttpComponentsClientHttpRequestFactory rf =
-			    (HttpComponentsClientHttpRequestFactory) restTemplate.getRequestFactory();
-			rf.setReadTimeout(1 * 1000);
-			rf.setConnectTimeout(1 * 1000);
-		 *GENERATING TIMEOUT 
+		 * GENERATING TIMEOUT HttpComponentsClientHttpRequestFactory rf =
+		 * (HttpComponentsClientHttpRequestFactory) restTemplate.getRequestFactory();
+		 * rf.setReadTimeout(1 * 1000); rf.setConnectTimeout(1 * 1000); GENERATING
+		 * TIMEOUT
 		 * 
 		 * HttpHeaders headers = new HttpHeaders(); headers.add("Content-Type",
 		 * "application/json"); // headers.setContentType(MediaType.APPLICATION_JSON);
@@ -169,36 +164,49 @@ public class ClientService implements IClientService {
 
 	@Override
 	public Boolean isClientAvailable(Long id) {
-		
-		Boolean currentAvailability = this.sendEcho(id);
-		this.updateAvailabilityStatus(id, currentAvailability);
+
+		Boolean currentAvailability = false;
+
+		if (this.exists(id)) {
+
+			System.out.println("ClientService check if client " + id + " is available...");
+
+			//currentAvailability = this.sendEcho(id);
+			currentAvailability = true;
+			this.updateAvailabilityStatus(id, currentAvailability);
+
+		} else {
+			
+			System.out.println("ClientService.isClientAvailable: client " + id + " does not exist...");
+		}
 
 		return currentAvailability;
 	}
 
 	@Override
 	public void updateAvailabilityStatus(Long id, Boolean currentAvailability) {
-		
-		/*
-		Client client = this.findById(id);
-		client.setIsClientAvailable(clientRepository.save(currentAvailability));
-		
-		*/
+
+		 Client client = clientRepo.findOne(id);
+		 client.setIsClientAvailable(currentAvailability);
+		 
+		 clientRepo.save(client);
 	}
 
 	@Override
 	public FrequencyDTO getClientFrequencySettings(Long id) {
 
-		/*Client client = clientInfoRepository.findOne(id);
-
-		Double collectionFrequency = client.getDataCollectionFrequency();
-		Double uploadFrequency = client.getDataUploadFrequency();
-		FrequencyDTO frequencyDTO = new FrequencyDTO(collectionFrequency, uploadFrequency);
-
-		return frequencyDTO;*/
+		/*
+		 * Client client = clientInfoRepository.findOne(id);
+		 * 
+		 * Double collectionFrequency = client.getDataCollectionFrequency(); Double
+		 * uploadFrequency = client.getDataUploadFrequency(); FrequencyDTO frequencyDTO
+		 * = new FrequencyDTO(collectionFrequency, uploadFrequency);
+		 * 
+		 * return frequencyDTO;
+		 */
 		return null;
 	}
-	
+
 	@Override
 	public void setUploadAndCollectionFrequency(Long id, FrequencyDTO frequencyDTO) {
 
@@ -222,17 +230,14 @@ public class ClientService implements IClientService {
 		 */
 		// saving updated values into a database
 
-		
 		/*
-		Client client = clientInfoRepository.findOne(id);
-		client.setDataCollectionFrequency(frequencyDTO.getCollectionFrequency());
-		client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());
-
-		clientInfoRepository.save(client);
-		*/
+		 * Client client = clientInfoRepository.findOne(id);
+		 * client.setDataCollectionFrequency(frequencyDTO.getCollectionFrequency());
+		 * client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());
+		 * 
+		 * clientInfoRepository.save(client);
+		 */
 	}
-
-	
 
 	@Override
 	public void setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
@@ -253,26 +258,25 @@ public class ClientService implements IClientService {
 		 * restTemplate.exchange(postUrl, HttpMethod.PUT, request, new
 		 * ParameterizedTypeReference<ClientConfigDTO>() {}); }
 		 */
-		
-		/*
-		Client client = clientInfoRepository.findOne(id);
-		client.setIp(clientConfigDTO.getIp());
-		client.setPort(clientConfigDTO.getPort());
 
-		clientInfoRepository.save(client);
-		
-		*/
+		/*
+		 * Client client = clientInfoRepository.findOne(id);
+		 * client.setIp(clientConfigDTO.getIp());
+		 * client.setPort(clientConfigDTO.getPort());
+		 * 
+		 * clientInfoRepository.save(client);
+		 * 
+		 */
 
 	}
 
-
 	@Override
 	public Long createClient(ClientDto clientDto) {
-		
+
 		Client client = new Client(clientDto);
-		
+
 		client = clientRepo.save(client);
-		
+
 		return client.getClientId();
 	}
 }

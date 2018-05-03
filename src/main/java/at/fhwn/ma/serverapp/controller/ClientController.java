@@ -90,11 +90,10 @@ public class ClientController {
 
 	@RequestMapping(value = "/clients/clientAvailability/{id}", method = RequestMethod.GET)
 	public Boolean checkClientAvailability(@PathVariable Long id) {
-		//Boolean availability = clientService.isClientAvailable(id);
 		
-		return true;
+		Boolean availability = clientService.isClientAvailable(id);
 		
-		//return availability;
+		return availability;
 	}
 
 	@RequestMapping(value = "/clients/setFrequencies/{id}", method = RequestMethod.POST)
