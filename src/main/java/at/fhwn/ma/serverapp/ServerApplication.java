@@ -20,11 +20,11 @@ import at.fhwn.ma.serverapp.service.ClientService;
 import at.fhwn.ma.serverapp.service.IClientService;
 
 @SpringBootApplication
-public class AppDaoprojectApplication {
+public class ServerApplication {
 
 	public static void main(String[] args) throws IOException {
 
-		SpringApplication.run(AppDaoprojectApplication.class, args);
+		SpringApplication.run(ServerApplication.class, args);
 
 	}
 
