@@ -6,24 +6,24 @@ import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
 import at.fhwn.ma.serverapp.dto.FrequencyDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadData;
+import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.model.Client;
-import at.fhwn.ma.serverapp.model.ClientInfo;
 
 public interface IClientService {
 
-	List<ClientInfo> loadAll();
+	List<Client> loadAll();
 	
 	List<WorkloadData> getAllDataById(Long id);
 
 	void delete(Long id);
 
-	ClientInfo findById(Long id);
+	Client findById(Long id);
 
 //	void saveWorkloadData(List<WorkloadDataDTO> workloadDataDTOs);
 
-	Client create(WorkloadData workloadData);
+	ClientData create(WorkloadData workloadData);
 
-	List<Client> createMultipleClients(WorkloadDTO workloadDataDTO);
+	List<ClientData> createMultipleClients(WorkloadDTO workloadDataDTO);
 	
 	Boolean sendEcho(Long id);
 	
@@ -37,6 +37,6 @@ public interface IClientService {
 	
 	void setConfiguration(Long id, ClientConfigDTO clientConfigDTO);
 	
-	Long createClientInfo(ClientInfo clientInfo);
+	Long createClientInfo(Client clientInfo);
 
 }

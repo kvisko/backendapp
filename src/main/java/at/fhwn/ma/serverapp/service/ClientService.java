@@ -26,8 +26,8 @@ import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
 import at.fhwn.ma.serverapp.dto.FrequencyDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadData;
+import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.model.Client;
-import at.fhwn.ma.serverapp.model.ClientInfo;
 import at.fhwn.ma.serverapp.repository.ClientInfoRepository;
 import at.fhwn.ma.serverapp.repository.ClientRepository;
 import at.fhwn.ma.serverapp.util.ConnectionData;
@@ -45,8 +45,8 @@ public class ClientService implements IClientService {
 	private ClientInfoRepository clientInfoRepository;
 
 	@Override
-	public List<ClientInfo> loadAll() {
-		List<ClientInfo> clients = clientInfoRepository.findAll();
+	public List<Client> loadAll() {
+		List<Client> clients = clientInfoRepository.findAll();
 		return clients;
 	}
 
@@ -54,42 +54,45 @@ public class ClientService implements IClientService {
 		// List<ClientInfo> clients = clientService.loadAll();
 		// TODO transformisati listu klijenata u WorkloadData
 
-		ClientInfo clientInfo = this.findById(id);
-		List<Client> clientData = clientInfo.getClientData();
+		/*
+		Client clientInfo = this.findById(id);
+		List<ClientData> clientData = clientInfo.getClientData();
 
 		List<WorkloadData> clientWorkloadData = new ArrayList<>();
 
-		for (Client client : clientData) {
+		for (ClientData client : clientData) {
 			WorkloadData workloadData = new WorkloadData(client);
 			clientWorkloadData.add(workloadData);
 		}
 
 		return clientWorkloadData;
+		*/
+		return null;
 	}
 
 	@Override
 	@Transactional
-	public Client create(WorkloadData workloadData) {
-		Client client = new Client();
+	public ClientData create(WorkloadData workloadData) {
+		ClientData client = new ClientData();
 		client.setCpuUsage(workloadData.getCpuUsage());
 		client.setMemoryUsage(workloadData.getMemoryUsage());
 
-		Client clientCreated = clientRepository.save(client);
+		ClientData clientCreated = clientRepository.save(client);
 		return clientCreated;
 	}
 
 	@Override
 	@Transactional
-	public List<Client> createMultipleClients(WorkloadDTO workloadDataDTO) {
-		List<Client> clientData = new ArrayList<>();
+	public List<ClientData> createMultipleClients(WorkloadDTO workloadDataDTO) {
+		List<ClientData> clientData = new ArrayList<>();
 
 		for (WorkloadData workloadData : workloadDataDTO) {
-			Client client = new Client();
+			ClientData client = new ClientData();
 			client.setCpuUsage(workloadData.getCpuUsage());
 			client.setMemoryUsage(workloadData.getMemoryUsage());
 			client.setTimestamp(workloadData.getTimestamp());
 
-			Client clientDataCreated = clientRepository.save(client);
+			ClientData clientDataCreated = clientRepository.save(client);
 			clientData.add(clientDataCreated);
 		}
 
@@ -104,8 +107,8 @@ public class ClientService implements IClientService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public ClientInfo findById(Long id) {
-		ClientInfo clientInfo = clientInfoRepository.findOne(id);
+	public Client findById(Long id) {
+		Client clientInfo = clientInfoRepository.findOne(id);
 		return clientInfo;
 	}
 
@@ -188,20 +191,25 @@ public class ClientService implements IClientService {
 
 	@Override
 	public void updateAvailabilityStatus(Long id, Boolean currentAvailability) {
-		ClientInfo client = this.findById(id);
+		
+		/*
+		Client client = this.findById(id);
 		client.setIsClientAvailable(clientRepository.save(currentAvailability));
+		
+		*/
 	}
 
 	@Override
 	public FrequencyDTO getClientFrequencySettings(Long id) {
 
-		ClientInfo client = clientInfoRepository.findOne(id);
+		/*Client client = clientInfoRepository.findOne(id);
 
 		Double collectionFrequency = client.getDataCollectionFrequency();
 		Double uploadFrequency = client.getDataUploadFrequency();
 		FrequencyDTO frequencyDTO = new FrequencyDTO(collectionFrequency, uploadFrequency);
 
-		return frequencyDTO;
+		return frequencyDTO;*/
+		return null;
 	}
 	
 	@Override
@@ -227,11 +235,14 @@ public class ClientService implements IClientService {
 		 */
 		// saving updated values into a database
 
-		ClientInfo client = clientInfoRepository.findOne(id);
+		
+		/*
+		Client client = clientInfoRepository.findOne(id);
 		client.setDataCollectionFrequency(frequencyDTO.getCollectionFrequency());
 		client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());
 
 		clientInfoRepository.save(client);
+		*/
 	}
 
 	
@@ -256,19 +267,25 @@ public class ClientService implements IClientService {
 		 * ParameterizedTypeReference<ClientConfigDTO>() {}); }
 		 */
 		
-		ClientInfo client = clientInfoRepository.findOne(id);
+		/*
+		Client client = clientInfoRepository.findOne(id);
 		client.setIp(clientConfigDTO.getIp());
 		client.setPort(clientConfigDTO.getPort());
 
 		clientInfoRepository.save(client);
+		
+		*/
 
 	}
 
 	@Override
-	public Long createClientInfo(ClientInfo clientInfo) {
+	public Long createClientInfo(Client clientInfo) {
 
+		/*
 		clientInfoRepository.save(clientInfo);
 
 		return clientInfo.getId();
+		*/
+		return null;
 	}
 }

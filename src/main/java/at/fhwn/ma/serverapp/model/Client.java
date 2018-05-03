@@ -1,93 +1,63 @@
 package at.fhwn.ma.serverapp.model;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.JoinColumnOrFormula;
+
 @Entity
-@Table(name = "ClientData")
+@Table//(name = "client_info")
 public class Client {
-	
+
 	@Id
-	@Column(name="client_id")
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	@NotNull @Column(name = "cpu_Usage")
-	private Double cpuUsage;
-	
-	@NotNull @Column(name = "memory_Usage")
-	private Double memoryUsage;
-	
-	@Column(name = "timestamp")
-	private Date timestamp;
-	
-	@ManyToOne
-	private ClientInfo clientInfo;
+	@GeneratedValue
+	@Column(name = "client_id")
+	private Long clientId;
 
-	public Client() {}
+	@NotNull
+	private String clientAllias;
 	
-	public Client(Long clientId, Double cpuUsage, Double memoryUsage) {
-		this.id=clientId;
-		this.cpuUsage=cpuUsage;
-		this.memoryUsage=memoryUsage;
-	}
-	
-	public Client(Double cpuUsage, Double memoryUsage, Date timestamp) {
-		super();
-//		this.clientId = clientId;
-		this.cpuUsage = cpuUsage;
-		this.memoryUsage = memoryUsage;
-		this.timestamp=timestamp;
-	} 
-	
-	public Long getId() {
-		return id;
-	}
+	@NotNull
+	private String clientIp;
 
-	public void setId(Long clientId) {
-		this.id = clientId;
-	}
+	@NotNull
+	private String clientPort;
 
-	public double getCpuUsage() {
-		return cpuUsage;
+	@NotNull
+	private Double dataCollectionFrequency;
+
+	@NotNull
+	private Double dataUploadFrequency;
+
+	@NotNull
+	private Boolean isClientAvailable;
+
+	@NotNull
+	private String serverAllias;
+	
+	@NotNull
+	private String serverIp;
+
+	@NotNull
+	private String serverPort;
+
+	//@OneToMany(mappedBy="client_data", targetEntity=ClientData.class)
+	@OneToMany
+	@JoinColumn(name = "client_id")
+	private List<ClientData> clientData = new ArrayList<ClientData>();
+	
+	public Client() {
 	}
 
-	public void setCpuUsage(Double cpuUsage) {
-		this.cpuUsage = cpuUsage;
-	}
-
-	public double getMemoryUsage() {
-		return memoryUsage;
-	}
-
-	public void setMemoryUsage(Double memoryUsage) {
-		this.memoryUsage = memoryUsage;
-	}
-	
-	public Date getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public ClientInfo getClientInfo() {
-		return clientInfo;
-	}
-
-	public void setClientInfo(ClientInfo clientInfo) {
-		this.clientInfo = clientInfo;
-	}
-	
-	
 
 }

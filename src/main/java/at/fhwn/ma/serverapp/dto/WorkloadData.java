@@ -4,7 +4,7 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
-import at.fhwn.ma.serverapp.model.Client;
+import at.fhwn.ma.serverapp.model.ClientData;
 
 public class WorkloadData {
 
@@ -27,7 +27,7 @@ public class WorkloadData {
 	public WorkloadData() {
 	}
 
-	public WorkloadData(Client client) {
+	public WorkloadData(ClientData client) {
 		this.id = client.getId();
 		this.cpuUsage = client.getCpuUsage();
 		this.memoryUsage = client.getMemoryUsage();

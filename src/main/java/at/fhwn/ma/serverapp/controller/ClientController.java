@@ -1,6 +1,7 @@
 package at.fhwn.ma.serverapp.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -22,8 +23,8 @@ import at.fhwn.ma.serverapp.dto.FrequencyDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadData;
 import at.fhwn.ma.serverapp.exception.CustomNotFoundException;
+import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.model.Client;
-import at.fhwn.ma.serverapp.model.ClientInfo;
 import at.fhwn.ma.serverapp.service.ClientService;
 import at.fhwn.ma.serverapp.util.ResponseWrapper;
 
@@ -37,7 +38,7 @@ public class ClientController {
 	@RequestMapping(value = "/clients", method = RequestMethod.GET)
 	@Produces({ MediaType.APPLICATION_JSON })
 	public ResponseEntity<?> getAllClients() {
-		List<ClientInfo> clients = clientService.loadAll();
+		List<Client> clients = clientService.loadAll();
 		return new ResponseEntity<>(new ResponseWrapper(clients), HttpStatus.OK);
 	}
 
@@ -47,7 +48,7 @@ public class ClientController {
 		if (id == null || !clientService.exists(id)) {
 			throw new CustomNotFoundException("NOT FOUND");
 		}
-		ClientInfo client = clientService.findById(id);
+		Client client = clientService.findById(id);
 		return new ResponseEntity<>(new ResponseWrapper(client), HttpStatus.OK);
 	}
 
@@ -58,7 +59,7 @@ public class ClientController {
 	}
 
 	@RequestMapping(value = "/clients/createClientInfo", method = RequestMethod.POST)
-	public ResponseEntity<?> createClientInfo(@RequestBody ClientInfo clientInfo) {
+	public ResponseEntity<?> createClientInfo(@RequestBody Client clientInfo) {
 
 		clientService.createClientInfo(clientInfo);
 		//TODO return ID
@@ -107,7 +108,7 @@ public class ClientController {
 
 		List<WorkloadData> clientData = new ArrayList<>();
 
-		Client client1 = new Client(1L, 25D, 54D);
+		ClientData client1 = new ClientData();
 
 		WorkloadData data1 = new WorkloadData(client1);
 		clientData.add(data1);
