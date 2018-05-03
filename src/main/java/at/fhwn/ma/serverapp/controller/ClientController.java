@@ -91,6 +91,8 @@ public class ClientController {
 	@RequestMapping(value = "/clients/clientAvailability/{id}", method = RequestMethod.GET)
 	public Boolean checkClientAvailability(@PathVariable Long id) {
 		
+		System.out.println("GET: ClientController.checkClientAvailability for client " + id);
+		
 		Boolean availability = clientService.isClientAvailable(id);
 		
 		return availability;

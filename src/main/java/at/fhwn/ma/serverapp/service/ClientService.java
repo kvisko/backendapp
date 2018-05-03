@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
 import at.fhwn.ma.serverapp.dto.ClientDto;
@@ -22,6 +23,8 @@ public class ClientService implements IClientService {
 
 	final String SET_FREQUENCIES = "/setFrequencies/";
 	final String SET_CONFIGURATION = "setConfiguration";
+	final String SEND_ECHO = "/client/echoResponse/";
+	final int ECHO_VAL = 2;
 
 	@Autowired
 	private ClientDataRepository clientDataRepo;
@@ -106,60 +109,27 @@ public class ClientService implements IClientService {
 
 		// ClientInfo client = clientService.findById(id);
 		// String hostAddress = client.getAddress();
+		
+		System.out.println("ClientService.sendEcho for id "+id);
+		
+		Boolean echo = false;
+		
+		String clientHost = "http://localhost:8888";
+		
+		String echoUrl = clientHost + SEND_ECHO + ECHO_VAL;
+		
+		System.out.println("-- clinetPath is "+ echoUrl + " --");
+	     
+	    RestTemplate restTemplate = new RestTemplate();
+	    Double result = restTemplate.getForObject(echoUrl, Double.class);
+		
+	    if(result == 4)
+	    	echo = true;
+	    
+	    
+		System.out.println(result);
 
-		final String SEND_ECHO = "/sendEcho/";
-		double value = 2;
-		Boolean echo = true;
-
-		/*
-		 * RestTemplate restTemplate = new RestTemplate();
-		 * MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new
-		 * MappingJackson2HttpMessageConverter(); //
-		 * mappingJackson2HttpMessageConverter.setSupportedMediaTypes(Arrays.asList(
-		 * MediaType.APPLICATION_JSON));
-		 * restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
-		 * 
-		 * GENERATING TIMEOUT HttpComponentsClientHttpRequestFactory rf =
-		 * (HttpComponentsClientHttpRequestFactory) restTemplate.getRequestFactory();
-		 * rf.setReadTimeout(1 * 1000); rf.setConnectTimeout(1 * 1000); GENERATING
-		 * TIMEOUT
-		 * 
-		 * HttpHeaders headers = new HttpHeaders(); headers.add("Content-Type",
-		 * "application/json"); // headers.setContentType(MediaType.APPLICATION_JSON);
-		 * String postUrl = ConnectionData.CLIENT + SEND_ECHO + id; HttpEntity<Double>
-		 * request = new HttpEntity<>(value, headers); restTemplate.exchange(postUrl,
-		 * HttpMethod.POST, request, new ParameterizedTypeReference<Double>() {});
-		 * 
-		 * double responseValue = request.getBody(); if (responseValue == 4) { echo =
-		 * true; } else { echo = false; }
-		 */
 		return echo;
-
-		/*
-		 * Process p1 = java.lang.Runtime.getRuntime().exec("ping -n 1 www.google.com");
-		 * int returnVal = p1.waitFor(); boolean reachable = (returnVal==0);
-		 */
-
-		/*
-		 * try {
-		 * 
-		 * InetAddress address = InetAddress.getByName(hostAddress);
-		 * System.out.println("Name: " + address.getHostName());
-		 * System.out.println("Address: " + address.getHostAddress());
-		 * if(address.isReachable(3000)==true) {
-		 * 
-		 * System.out.println("Client is available");
-		 * client.setClientAvailability(true); } else
-		 * client.setClientAvailability(false); }
-		 * 
-		 * catch (UnknownHostException e) { System.err.println("Client is unavailable");
-		 * client.setClientAvailability(false); }
-		 * 
-		 * catch (IOException e) { System.err.println("Unable to connect"); }
-		 */
-
-		// return client.getIsClientAvailable();
-
 	}
 
 	@Override
@@ -171,8 +141,7 @@ public class ClientService implements IClientService {
 
 			System.out.println("ClientService check if client " + id + " is available...");
 
-			//currentAvailability = this.sendEcho(id);
-			currentAvailability = true;
+			currentAvailability = this.sendEcho(id);
 			this.updateAvailabilityStatus(id, currentAvailability);
 
 		} else {
