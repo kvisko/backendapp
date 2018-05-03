@@ -228,32 +228,22 @@ public class ClientService implements IClientService {
 	@Override
 	public void setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
 
-		/*
-		 * RestTemplate restTemplate = new RestTemplate();
-		 * 
-		 * MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new
-		 * MappingJackson2HttpMessageConverter(); //
-		 * mappingJackson2HttpMessageConverter.setSupportedMediaTypes(Arrays.asList(
-		 * MediaType.APPLICATION_JSON));
-		 * restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
-		 * 
-		 * HttpHeaders headers = new HttpHeaders(); headers.add("Content-Type",
-		 * "application/json"); // headers.setContentType(MediaType.APPLICATION_JSON);
-		 * String postUrl = ConnectionData.CLIENT + SET_CONFIGURATION + id;
-		 * HttpEntity<Object> request = new HttpEntity<>(clientConfigDTO, headers);
-		 * restTemplate.exchange(postUrl, HttpMethod.PUT, request, new
-		 * ParameterizedTypeReference<ClientConfigDTO>() {}); }
-		 */
-
-		/*
-		 * Client client = clientInfoRepository.findOne(id);
-		 * client.setIp(clientConfigDTO.getIp());
-		 * client.setPort(clientConfigDTO.getPort());
-		 * 
-		 * clientInfoRepository.save(client);
-		 * 
-		 */
-
+		
+		 Client client = clientRepo.findOne(id);
+		 
+		 if(client != null) {
+			 
+			 // TODO CALL CLIENT AND CHANGE DATA
+			 // call setConfiguration
+			 
+			 client.setClientIp(clientConfigDTO.getIp());
+			 client.setClientPort(clientConfigDTO.getPort());
+			 
+			 clientRepo.save(client);
+		 } else {
+				
+				System.out.println("ClientService.setConfiguration: client " + id + " does not exist...");
+			}
 	}
 
 	@Override

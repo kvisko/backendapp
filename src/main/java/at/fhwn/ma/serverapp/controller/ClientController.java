@@ -145,6 +145,8 @@ public class ClientController {
 	@RequestMapping(value = "/clients/setConfiguration/{id}", method = RequestMethod.POST)
 	public ResponseEntity<?> setConfiguration(@PathVariable Long id, @RequestBody ClientConfigDTO clientConfigDTO) {
 
+		System.out.println("POST: ClientController.setConfiguration for client " + id);
+		
 		clientService.setConfiguration(id, clientConfigDTO);
 
 		return new ResponseEntity<>(HttpStatus.OK);

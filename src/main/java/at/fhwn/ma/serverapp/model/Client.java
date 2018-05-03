@@ -12,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
 import at.fhwn.ma.serverapp.dto.ClientDto;
 
 @Entity
