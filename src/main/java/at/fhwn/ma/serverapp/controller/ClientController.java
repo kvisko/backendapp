@@ -76,7 +76,7 @@ public class ClientController {
 		
 		System.out.println(workloadDataDTO.toString());
 
-		clientService.createMultipleClients(workloadDataDTO);
+		clientService.insertMultipleWorkloadData(workloadDataDTO);
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

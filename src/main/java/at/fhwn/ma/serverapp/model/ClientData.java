@@ -73,7 +73,13 @@ public class ClientData {
 		this.timestamp = timestamp;
 	}
 
+	public Long getClientId() {
+		return clientId;
+	}
 
-	
+	public void setClientId(Long clientId) {
+		this.clientId = clientId;
+	}
+
 
 }

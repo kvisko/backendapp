@@ -81,20 +81,25 @@ public class ClientService implements IClientService {
 
 	@Override
 	@Transactional
-	public List<ClientData> createMultipleClients(WorkloadDTO workloadDataDTO) {
-		List<ClientData> clientData = new ArrayList<>();
+	public List<ClientData> insertMultipleWorkloadData(WorkloadDTO workloadDataDTO) {
+		List<ClientData> toBeInsertedClientData = new ArrayList<>();
 
 		for (WorkloadData workloadData : workloadDataDTO) {
+			
 			ClientData client = new ClientData();
+			
+			client.setClientId(workloadDataDTO.getClientId());
+			
 			client.setCpuUsage(workloadData.getCpuUsage());
 			client.setMemoryUsage(workloadData.getMemoryUsage());
 			client.setTimestamp(workloadData.getTimestamp());
 
-			ClientData clientDataCreated = clientDataRepo.save(client);
-			clientData.add(clientDataCreated);
+			toBeInsertedClientData.add(client);
 		}
+		
+		clientDataRepo.save(toBeInsertedClientData);
 
-		return clientData;
+		return toBeInsertedClientData;
 	}
 
 	@Override
@@ -226,8 +231,9 @@ public class ClientService implements IClientService {
 				RestTemplate restTemplate = new RestTemplate();
 						
 				ResponseEntity<FrequencyDTO> postResponse = restTemplate.postForEntity(changeFreqUrl, frequencyDTO, FrequencyDTO.class);
-				System.out.println("Response for Post Request: " + "\n" + postResponse.getBody());
 				
+				System.out.println("--- FREQ PARAMS CHANGED ---");
+
 				// saving updated values into a database
 				client.setDataCollectionFrequency(frequencyDTO.getCollectionFrequency());
 				client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());

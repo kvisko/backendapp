@@ -26,7 +26,7 @@ public interface IClientService {
 
 	ClientData create(WorkloadData workloadData);
 
-	List<ClientData> createMultipleClients(WorkloadDTO workloadDataDTO);
+	List<ClientData> insertMultipleWorkloadData(WorkloadDTO workloadDataDTO);
 	
 	Boolean isClientAvailable(Long id);
 
