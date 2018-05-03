@@ -34,7 +34,7 @@ public interface IClientService {
 
 	void updateAvailabilityStatus(Long id, Boolean currentAvailability);
 
-	FrequencyDTO getClientFrequencySettings(Long id);
+	FrequencyDTO getClientFrequencySettingsById(Long id);
 	
 	HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO);
 	

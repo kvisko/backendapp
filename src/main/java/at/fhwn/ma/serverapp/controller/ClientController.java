@@ -58,6 +58,7 @@ public class ClientController {
 	@RequestMapping(value = "/clients/{id}", method = RequestMethod.GET)
 	@Produces({ MediaType.APPLICATION_JSON })
 	public ResponseEntity<?> getClientById(@PathVariable Long id) throws Exception {
+		
 		if (id == null || !clientService.exists(id)) {
 			throw new CustomNotFoundException("NOT FOUND");
 		}
@@ -66,8 +67,14 @@ public class ClientController {
 	}
 
 	@RequestMapping(value = "/clients/addSingleClientData", method = RequestMethod.POST)
-	public ResponseEntity<?> addSingleClientData(@RequestBody WorkloadData client) {
-		clientService.create(client);
+	public ResponseEntity<?> addSingleClientData(@RequestBody WorkloadData workloadData) {
+		
+		System.out.println("POST:  addSingleClientData");
+		System.out.println("adding following data..");
+		System.out.println(workloadData);
+		
+		clientService.insertWorkloadData(workloadData);
+		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -77,7 +84,9 @@ public class ClientController {
 	@Consumes({ MediaType.APPLICATION_JSON })
 	public ResponseEntity<?> addClientData(@RequestBody WorkloadDTO workloadDataDTO) {
 
-		System.out.println("posting new data");
+		System.out.println("POST:  addClientData");
+		System.out.println("adding following data..");
+		
 		System.out.println(workloadDataDTO.toString());
 
 		clientService.createMultipleClients(workloadDataDTO);
@@ -94,6 +103,7 @@ public class ClientController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	/* Check if client is available */
 	@RequestMapping(value = "/clients/clientAvailability/{id}", method = RequestMethod.GET)
 	public Boolean checkClientAvailability(@PathVariable Long id) {
 		
@@ -105,14 +115,34 @@ public class ClientController {
 	}
 
 	@RequestMapping(value = "/clients/setFrequencies/{id}", method = RequestMethod.POST)
-	public ResponseEntity<?> setUploadAndCollectionFrequency(@PathVariable Long id,
+	public ResponseEntity<?> setUploadsAndCollectionFrequency(@PathVariable Long id,
 			@RequestBody FrequencyDTO frequencyDTO) {
 
 		clientService.setUploadAndCollectionFrequency(id, frequencyDTO);
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/clients/getClientFrequencySettings/{id}", method = RequestMethod.GET)
+	public FrequencyDTO getClientFrequencySettings(@PathVariable Long id) {
 
+		FrequencyDTO frequencyDTO = clientService.getClientFrequencySettingsById(id);
+		
+		return frequencyDTO;
+	}
+
+	/* change client ip and client port. if change successful, save the settings to the dabase */
+	@RequestMapping(value = "/clients/setConfiguration/{id}", method = RequestMethod.POST)
+	public ResponseEntity<?> setConfiguration(@PathVariable Long id, @RequestBody ClientConfigDTO clientConfigDTO) {
+
+		System.out.println("POST: ClientController.setConfiguration for client " + id);
+		
+		HttpStatus result = clientService.setConfiguration(id, clientConfigDTO);
+
+		return new ResponseEntity<>(result);
+
+	}
+	
 	@RequestMapping(value = "/getClientDataById/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
 	public List<WorkloadData> getChartDataByClientId(@PathVariable Long id) {
 
@@ -140,23 +170,5 @@ public class ClientController {
 		return clientData;
 	}
 
-	@RequestMapping(value = "/clients/getClienSettings/{id}", method = RequestMethod.GET)
-	public FrequencyDTO getClientFrequencySettings(@PathVariable Long id) {
-
-		FrequencyDTO frequencyDTO = clientService.getClientFrequencySettings(id);
-		return frequencyDTO;
-
-	}
-
-	@RequestMapping(value = "/clients/setConfiguration/{id}", method = RequestMethod.POST)
-	public ResponseEntity<?> setConfiguration(@PathVariable Long id, @RequestBody ClientConfigDTO clientConfigDTO) {
-
-		System.out.println("POST: ClientController.setConfiguration for client " + id);
-		
-		HttpStatus result = clientService.setConfiguration(id, clientConfigDTO);
-
-		return new ResponseEntity<>(result);
-
-	}
 
 }

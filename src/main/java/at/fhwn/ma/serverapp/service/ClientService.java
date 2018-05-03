@@ -2,6 +2,7 @@ package at.fhwn.ma.serverapp.service;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,18 +181,17 @@ public class ClientService implements IClientService {
 	}
 
 	@Override
-	public FrequencyDTO getClientFrequencySettings(Long id) {
+	public FrequencyDTO getClientFrequencySettingsById(Long id) {
 
-		/*
-		 * Client client = clientInfoRepository.findOne(id);
-		 * 
-		 * Double collectionFrequency = client.getDataCollectionFrequency(); Double
-		 * uploadFrequency = client.getDataUploadFrequency(); FrequencyDTO frequencyDTO
-		 * = new FrequencyDTO(collectionFrequency, uploadFrequency);
-		 * 
-		 * return frequencyDTO;
-		 */
-		return null;
+		 Client client = clientRepo.findOne(id);
+		 
+		 Double collectionFrequency = client.getDataCollectionFrequency();
+		 Double uploadFrequency = client.getDataUploadFrequency();
+		 
+		 FrequencyDTO frequencyDTO = new FrequencyDTO(collectionFrequency, uploadFrequency);
+		 
+		 return frequencyDTO;
+		 
 	}
 
 	@Override
@@ -280,5 +280,18 @@ public class ClientService implements IClientService {
 		client = clientRepo.save(client);
 
 		return client.getClientId();
+	}
+
+	public void insertWorkloadData(WorkloadData workloadData) {
+		
+		Double cpuUsage = workloadData.getCpuUsage();
+		Double memoryUsage = workloadData.getMemoryUsage();
+		Date timestamp = workloadData.getTimestamp();
+		Long clientId = workloadData.getId();
+		
+		ClientData client = new ClientData(cpuUsage, memoryUsage, timestamp, clientId);
+		
+		clientDataRepo.save(client);
+		
 	}
 }

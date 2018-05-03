@@ -84,7 +84,7 @@ public class WorkloadData {
 
 	@Override
 	public String toString() {
-		return "ClientDTO [id=" + id + ", cpuUsage=" + cpuUsage + ", memoryUsage=" + memoryUsage + ", timestamp="
+		return "WorkloadData [id=" + id + ", cpuUsage=" + cpuUsage + ", memoryUsage=" + memoryUsage + ", timestamp="
 				+ timestamp + ", totalRam=" + totalRam + ", operatingSystem=" + operatingSystem + "]";
 	}
 
