@@ -7,6 +7,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
@@ -121,13 +123,24 @@ public class ClientService implements IClientService {
 		String echoUrl = clientHost + SEND_ECHO + ECHO_VAL;
 		
 		System.out.println("-- clinetPath is "+ echoUrl + " --");
-	     
-	    RestTemplate restTemplate = new RestTemplate();
-	    Double result = restTemplate.getForObject(echoUrl, Double.class);
+		
+		Double result = 3d;
+		
+		try{
+			 RestTemplate restTemplate = new RestTemplate();
+			 result = restTemplate.getForObject(echoUrl, Double.class);
+			 
+		} catch(HttpStatusCodeException e){
+		     String errorpayload = e.getResponseBodyAsString();
+		     System.out.println(errorpayload);
+		     
+		} catch(RestClientException e){
+			  System.out.println("no response payload, tell the user sth else ");
+			  System.out.println(e);
+		}
 		
 	    if(result == 4)
 	    	echo = true;
-	    
 	    
 		System.out.println(result);
 
