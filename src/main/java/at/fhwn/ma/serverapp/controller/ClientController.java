@@ -59,17 +59,8 @@ public class ClientController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/clients/createClientInfo", method = RequestMethod.POST)
-	public ResponseEntity<?> createClientInfo(@RequestBody Client clientInfo) {
-
-		clientService.createClientInfo(clientInfo);
-		// TODO return ID
-
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-
 	@RequestMapping(value = "/clients/createClient", method = RequestMethod.POST)
-	public ResponseEntity<?> createClientInfo(@RequestBody ClientDto clientDto) {
+	public ResponseEntity<?> createClient(@RequestBody ClientDto clientDto) {
 
 	   Long id = clientService.createClient(clientDto);
 		

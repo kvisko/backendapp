@@ -169,6 +169,7 @@ public class ClientService implements IClientService {
 
 	@Override
 	public Boolean isClientAvailable(Long id) {
+		
 		Boolean currentAvailability = this.sendEcho(id);
 		this.updateAvailabilityStatus(id, currentAvailability);
 
@@ -264,17 +265,8 @@ public class ClientService implements IClientService {
 
 	}
 
+
 	@Override
-	public Long createClientInfo(Client clientInfo) {
-
-		/*
-		clientInfoRepository.save(clientInfo);
-
-		return clientInfo.getId();
-		*/
-		return null;
-	}
-
 	public Long createClient(ClientDto clientDto) {
 		
 		Client client = new Client(clientDto);

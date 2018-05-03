@@ -3,6 +3,7 @@ package at.fhwn.ma.serverapp.service;
 import java.util.List;
 
 import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
+import at.fhwn.ma.serverapp.dto.ClientDto;
 import at.fhwn.ma.serverapp.dto.FrequencyDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadData;
@@ -37,6 +38,6 @@ public interface IClientService {
 	
 	void setConfiguration(Long id, ClientConfigDTO clientConfigDTO);
 	
-	Long createClientInfo(Client clientInfo);
+	Long createClient(ClientDto clientDto);
 
 }
