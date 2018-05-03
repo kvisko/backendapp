@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -26,7 +27,7 @@ import at.fhwn.ma.serverapp.repository.ClientDataRepository;
 public class ClientService implements IClientService {
 
 	final String SET_FREQUENCIES = "/setFrequencies/";
-	final String SET_CONFIGURATION = "setConfiguration";
+	final String SET_CONFIGURATION = "/setConfiguration";
 	final String SEND_ECHO = "/client/echoResponse/";
 	final int ECHO_VAL = 2;
 
@@ -113,35 +114,35 @@ public class ClientService implements IClientService {
 
 		// ClientInfo client = clientService.findById(id);
 		// String hostAddress = client.getAddress();
-		
-		System.out.println("ClientService.sendEcho for id "+client.getClientId());
-		
+
+		System.out.println("ClientService.sendEcho for id " + client.getClientId());
+
 		Boolean echo = false;
-		
+
 		String clientHost = ConnectionData.getClientHostById(client);
-		
+
 		String echoUrl = clientHost + SEND_ECHO + ECHO_VAL;
-		
-		System.out.println("-- clinetPath is "+ echoUrl + " --");
-		
+
+		System.out.println("-- clinetPath is " + echoUrl + " --");
+
 		Double result = 3d;
-		
-		try{
-			 RestTemplate restTemplate = new RestTemplate();
-			 result = restTemplate.getForObject(echoUrl, Double.class);
-			 
-		} catch(HttpStatusCodeException e){
-		     String errorpayload = e.getResponseBodyAsString();
-		     System.out.println(errorpayload);
-		     
-		} catch(RestClientException e){
-			  System.out.println("no response payload, tell the user sth else ");
-			  System.out.println(e);
+
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			result = restTemplate.getForObject(echoUrl, Double.class);
+
+		} catch (HttpStatusCodeException e) {
+			String errorpayload = e.getResponseBodyAsString();
+			System.out.println(errorpayload);
+
+		} catch (RestClientException e) {
+			System.out.println("no response payload, tell the user sth else ");
+			System.out.println(e);
 		}
-		
-	    if(result == 4)
-	    	echo = true;
-	    
+
+		if (result == 4)
+			echo = true;
+
 		System.out.println(result);
 
 		return echo;
@@ -151,7 +152,7 @@ public class ClientService implements IClientService {
 	public Boolean isClientAvailable(Long id) {
 
 		Boolean currentAvailability = false;
-		
+
 		Client client = clientRepo.findOne(id);
 
 		if (client != null) {
@@ -162,7 +163,7 @@ public class ClientService implements IClientService {
 			this.updateAvailabilityStatus(id, currentAvailability);
 
 		} else {
-			
+
 			System.out.println("ClientService.isClientAvailable: client " + id + " does not exist...");
 		}
 
@@ -172,10 +173,10 @@ public class ClientService implements IClientService {
 	@Override
 	public void updateAvailabilityStatus(Long id, Boolean currentAvailability) {
 
-		 Client client = clientRepo.findOne(id);
-		 client.setIsClientAvailable(currentAvailability);
-		 
-		 clientRepo.save(client);
+		Client client = clientRepo.findOne(id);
+		client.setIsClientAvailable(currentAvailability);
+
+		clientRepo.save(client);
 	}
 
 	@Override
@@ -226,24 +227,49 @@ public class ClientService implements IClientService {
 	}
 
 	@Override
-	public void setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
+	public HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
 
+		Client client = clientRepo.findOne(id);
 		
-		 Client client = clientRepo.findOne(id);
-		 
-		 if(client != null) {
-			 
-			 // TODO CALL CLIENT AND CHANGE DATA
-			 // call setConfiguration
-			 
-			 client.setClientIp(clientConfigDTO.getIp());
-			 client.setClientPort(clientConfigDTO.getPort());
-			 
-			 clientRepo.save(client);
-		 } else {
+		HttpStatus resultStatus = HttpStatus.NOT_MODIFIED;
+
+		if (client != null) {
+
+			try {
+
+				String clientHost = ConnectionData.getClientHostById(client);
+				String configUrl = clientHost + SET_CONFIGURATION + "/" + clientConfigDTO.getIp() + "/"
+						+ clientConfigDTO.getPort();
+
+				System.out.println("-- configUrl is " + configUrl + " --");
+
+				RestTemplate restTemplate = new RestTemplate();
+				HttpStatus result = restTemplate.getForObject(configUrl, HttpStatus.class);
+
+				// Save changed to DB
+				client.setClientIp(clientConfigDTO.getIp());
+				client.setClientPort(clientConfigDTO.getPort());
+
+				clientRepo.save(client);
 				
-				System.out.println("ClientService.setConfiguration: client " + id + " does not exist...");
+				return result;
+
+			} catch (HttpStatusCodeException e) {
+				String errorpayload = e.getResponseBodyAsString();
+				System.out.println(errorpayload);
+				return resultStatus;
+
+			} catch (RestClientException e) {
+				System.out.println("no response payload, tell the user sth else ");
+				System.out.println(e);
+				return resultStatus;
 			}
+
+		} else {
+
+			System.out.println("ClientService.setConfiguration: client " + id + " does not exist...");
+			return resultStatus;
+		}
 	}
 
 	@Override

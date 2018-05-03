@@ -2,6 +2,8 @@ package at.fhwn.ma.serverapp.service;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+
 import at.fhwn.ma.serverapp.dto.ClientConfigDTO;
 import at.fhwn.ma.serverapp.dto.ClientDto;
 import at.fhwn.ma.serverapp.dto.FrequencyDTO;
@@ -34,7 +36,7 @@ public interface IClientService {
 
 	FrequencyDTO getClientFrequencySettings(Long id);
 	
-	void setConfiguration(Long id, ClientConfigDTO clientConfigDTO);
+	HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO);
 	
 	Long createClient(ClientDto clientDto);
 

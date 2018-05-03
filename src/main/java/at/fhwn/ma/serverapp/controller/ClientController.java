@@ -147,9 +147,9 @@ public class ClientController {
 
 		System.out.println("POST: ClientController.setConfiguration for client " + id);
 		
-		clientService.setConfiguration(id, clientConfigDTO);
+		HttpStatus result = clientService.setConfiguration(id, clientConfigDTO);
 
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<>(result);
 
 	}
 
