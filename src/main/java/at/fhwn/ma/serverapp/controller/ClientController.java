@@ -36,13 +36,25 @@ public class ClientController {
 	@Autowired
 	private ClientService clientService;
 
+	/* For frontend: display all managed clients and their data */
 	@RequestMapping(value = "/clients", method = RequestMethod.GET)
 	@Produces({ MediaType.APPLICATION_JSON })
 	public ResponseEntity<?> getAllClients() {
+		
 		List<Client> clients = clientService.loadAll();
-		return new ResponseEntity<>(new ResponseWrapper(clients), HttpStatus.OK);
+		
+		return new ResponseEntity<>(clients, HttpStatus.OK);
 	}
 
+	/* For client registration at the point of the client installation */
+	@RequestMapping(value = "/clients/createClient", method = RequestMethod.POST)
+	public ResponseEntity<?> createClient(@RequestBody ClientDto clientDto) {
+
+	   Long id = clientService.createClient(clientDto);
+		
+		return new ResponseEntity<Long>(id, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/clients/{id}", method = RequestMethod.GET)
 	@Produces({ MediaType.APPLICATION_JSON })
 	public ResponseEntity<?> getClientById(@PathVariable Long id) throws Exception {
@@ -59,13 +71,7 @@ public class ClientController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/clients/createClient", method = RequestMethod.POST)
-	public ResponseEntity<?> createClient(@RequestBody ClientDto clientDto) {
-
-	   Long id = clientService.createClient(clientDto);
-		
-		return new ResponseEntity<Long>(id, HttpStatus.OK);
-	}
+	
 
 	@RequestMapping(value = "/clients/addClientData", method = RequestMethod.POST)
 	@Consumes({ MediaType.APPLICATION_JSON })
