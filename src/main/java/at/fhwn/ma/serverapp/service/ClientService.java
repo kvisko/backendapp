@@ -1,9 +1,11 @@
 package at.fhwn.ma.serverapp.service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -31,6 +33,8 @@ import at.fhwn.ma.serverapp.repository.ClientDataRepository;
 
 @Service
 public class ClientService implements IClientService {
+
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	final String CHANGE_FREQUENCIES_BY_CLIENT_ID = "/client/changeFrequencies/";
 	final String SET_CONFIGURATION = "/setConfiguration";
@@ -309,23 +313,30 @@ public class ClientService implements IClientService {
 	@Override
 	public Long createClient(ClientDto clientDto) {
 
+		logger.debug("Create new Client object with ClientDto data.");
 		Client client = new Client(clientDto);
 
+		logger.debug("Persist client object into the database.");
 		client = clientRepo.save(client);
+		logger.debug("Client persisted.");
 
 		return client.getClientId();
 	}
 
 	public void insertWorkloadData(WorkloadData workloadData) {
 
+		logger.debug("Extract WorkloadData parameters.");
 		Double cpuUsage = workloadData.getCpuUsage();
 		Double memoryUsage = workloadData.getMemoryUsage();
 		Date timestamp = workloadData.getTimestamp();
 		Long clientId = workloadData.getId();
 
+		logger.debug("Create new ClientData object with WorkloadData parameters");
 		ClientData client = new ClientData(cpuUsage, memoryUsage, timestamp, clientId);
 
+		logger.debug("Persist ClientData object into the database");
 		clientDataRepo.save(client);
+		logger.debug("ClientData persisted.");
 
 	}
 }

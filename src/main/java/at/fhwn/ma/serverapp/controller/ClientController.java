@@ -1,5 +1,6 @@
 package at.fhwn.ma.serverapp.controller;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +35,10 @@ import at.fhwn.ma.serverapp.util.ResponseWrapper;
 @RequestMapping("/api")
 public class ClientController {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	@Autowired
 	private ClientService clientService;
-
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	/* For frontend: display all managed clients and their data */
 	@RequestMapping(value = "/clients", method = RequestMethod.GET)
@@ -52,7 +54,14 @@ public class ClientController {
 	@RequestMapping(value = "/clients/createClient", method = RequestMethod.POST)
 	public ResponseEntity<?> createClient(@RequestBody ClientDto clientDto) {
 
-	   Long id = clientService.createClient(clientDto);
+	    logger.info("===CREATE NEW CLIENT===");
+	    logger.info("Provided parameters: client alias - {}, client IP - {}, client port - {}, " +
+                "data collection frequency - {}, data upload frequency - {}.", clientDto.getClientAllias(),
+                clientDto.getClientIp(), clientDto.getClientPort(), clientDto.getDataCollectionFrequency(),
+                clientDto.getDataUploadFrequency());
+
+	    Long id = clientService.createClient(clientDto);
+        logger.info("===CLIENT CREATED WITH THE ID {}===", id);
 		
 		return new ResponseEntity<Long>(id, HttpStatus.OK);
 	}
@@ -60,11 +69,9 @@ public class ClientController {
 	@RequestMapping(value = "/clients/addSingleClientData", method = RequestMethod.POST)
 	public ResponseEntity<?> addSingleClientData(@RequestBody WorkloadData workloadData) {
 		
-		System.out.println("POST:  addSingleClientData");
-		System.out.println("adding following data..");
-		System.out.println(workloadData);
-		
+		logger.info("Add single workload data for the client with the id {}.", workloadData.getId());
 		clientService.insertWorkloadData(workloadData);
+		logger.info("Workload data added.");
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
