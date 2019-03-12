@@ -171,7 +171,7 @@ public class ClientService implements IClientService {
 
 		Boolean currentAvailability = false;
 
-		logger.debug("Retrieving client from the database.");
+		logger.debug("Retrieving client from the database...");
 		Client client = clientRepo.findOne(id);
 
 		if (client != null) {
@@ -201,11 +201,15 @@ public class ClientService implements IClientService {
 	@Override
 	public FrequencyDTO getClientFrequencySettingsById(Long id) {
 
+        logger.debug("Retrieving client from the database...");
 		Client client = clientRepo.findOne(id);
 
+		logger.debug("Retrieve client's frequencies.");
 		Double collectionFrequency = client.getDataCollectionFrequency();
 		Double uploadFrequency = client.getDataUploadFrequency();
 
+		logger.debug("Creating FrequencyDTO with retrieved frequencies for the response.");
+		logger.info("Client - {}. Data collection frequency - {}, data upload frequency - {}.", id, collectionFrequency, uploadFrequency);
 		FrequencyDTO frequencyDTO = new FrequencyDTO(collectionFrequency, uploadFrequency);
 
 		return frequencyDTO;
@@ -215,12 +219,9 @@ public class ClientService implements IClientService {
 	@Override
 	public HttpStatus changeFrequencyByClientId(Long id, FrequencyDTO frequencyDTO) {
 
-		System.out.println("ClientService.changeFrequencyByClientId for id " + id);
-		System.out.println("New freq are");
-		System.out.println(frequencyDTO);
-		
 		HttpStatus resultStatus = HttpStatus.NOT_MODIFIED;
 
+        logger.debug("Retrieving client from the database...");
 		Client client = clientRepo.findOne(id);
 
 		if (client != null) {
@@ -229,44 +230,44 @@ public class ClientService implements IClientService {
 
 			String changeFreqUrl = clientHost + CHANGE_FREQUENCIES_BY_CLIENT_ID;
 
-			System.out.println("-- changeFreqUrl is " + changeFreqUrl + " --");
+            logger.debug("Client URL: {}", changeFreqUrl);
 
 			try {
 				
-				System.out.println("ClientService.changeFrequencyByClientId: Begin POST request");
-				System.out.println("--- CHANGE FREQ PARAMS ---");
-				
+				logger.debug("Generating HTTP header.");
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				
 				RestTemplate restTemplate = new RestTemplate();
-						
+
+				logger.debug("Generating the postForEntity method...");
 				ResponseEntity<FrequencyDTO> postResponse = restTemplate.postForEntity(changeFreqUrl, frequencyDTO, FrequencyDTO.class);
-				
-				System.out.println("--- FREQ PARAMS CHANGED ---");
+				logger.debug("Getting the post method response...");
 
 				// saving updated values into a database
+                logger.debug("Persist new frequencies into the database.");
 				client.setDataCollectionFrequency(frequencyDTO.getCollectionFrequency());
 				client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());
 
 				clientRepo.save(client);
+				logger.info("Frequencies successfully changed for the client with the id {}.", id);
 				
 				return postResponse.getStatusCode();
 
 			} catch (HttpStatusCodeException e) {
 				String errorpayload = e.getResponseBodyAsString();
-				System.out.println(errorpayload);
+                logger.warn(errorpayload);
 				return resultStatus;
 
 			} catch (RestClientException e) {
-				System.out.println("no response payload, tell the user sth else ");
-				System.out.println(e);
+				logger.warn("No response payload.", e);
 				return resultStatus;
 			}
 
 		} else {
 
-			System.out.println("Client with id " + id + " does not exist...");
+            logger.info("Client with the id {} does not exist.", id);
+
 			return resultStatus;
 		}
 	}

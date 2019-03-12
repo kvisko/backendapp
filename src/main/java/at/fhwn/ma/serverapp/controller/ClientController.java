@@ -102,7 +102,11 @@ public class ClientController {
 	public ResponseEntity<?> changeFrequencyByClientId(@PathVariable Long id,
 			@RequestBody FrequencyDTO frequencyDTO) {
 
+	    logger.info("Change data and collection frequencies for the client with the id {}.", id);
+	    logger.info("Provided parameters: data collection frequency - {}, data upload frequency - {}."
+                , frequencyDTO.getCollectionFrequency(), frequencyDTO.getUploadFrequency());
 		HttpStatus result = clientService.changeFrequencyByClientId(id, frequencyDTO);
+		logger.info("Frequencies changed - {}.", result.getReasonPhrase());
 
 		return new ResponseEntity<>(result);
 	}
@@ -111,7 +115,9 @@ public class ClientController {
 	@RequestMapping(value = "/clients/getClientFrequencySettings/{id}", method = RequestMethod.GET)
 	public FrequencyDTO getClientFrequencySettings(@PathVariable Long id) {
 
+	    logger.info("Get data and collection frequencies for the client with the id {}.", id);
 		FrequencyDTO frequencyDTO = clientService.getClientFrequencySettingsById(id);
+		logger.info("Frequencies for the client with the id {} successfully retrieved.", id);
 		
 		return frequencyDTO;
 	}
