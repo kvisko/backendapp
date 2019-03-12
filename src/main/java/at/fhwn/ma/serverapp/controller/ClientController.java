@@ -106,7 +106,7 @@ public class ClientController {
 	    logger.info("Provided parameters: data collection frequency - {}, data upload frequency - {}."
                 , frequencyDTO.getCollectionFrequency(), frequencyDTO.getUploadFrequency());
 		HttpStatus result = clientService.changeFrequencyByClientId(id, frequencyDTO);
-		logger.info("Frequencies changed - {}.", result.getReasonPhrase());
+		logger.info("changeFrequencyByClientId - {}.", result.getReasonPhrase());
 
 		return new ResponseEntity<>(result);
 	}
@@ -126,9 +126,11 @@ public class ClientController {
 	@RequestMapping(value = "/clients/setConfiguration/{id}", method = RequestMethod.POST)
 	public ResponseEntity<?> setConfiguration(@PathVariable Long id, @RequestBody ClientConfigDTO clientConfigDTO) {
 
-		System.out.println("POST: ClientController.setConfiguration for client " + id);
-		
+		logger.info("Set configuration for the client with the id {}.", id);
+		logger.info("Provided parameters: client IP - {}, client port - {}", clientConfigDTO.getIp(),
+                clientConfigDTO.getPort());
 		HttpStatus result = clientService.setConfiguration(id, clientConfigDTO);
+        logger.info("setConfiguration - {}.", result.getReasonPhrase());
 
 		return new ResponseEntity<>(result);
 
@@ -142,11 +144,16 @@ public class ClientController {
 	@RequestMapping(value = "/clients/{id}", method = RequestMethod.GET)
 	@Produces({ MediaType.APPLICATION_JSON })
 	public ResponseEntity<?> getClientById(@PathVariable Long id) throws Exception {
-		
+
 		if (id == null || !clientService.exists(id)) {
+		    logger.info("Client with the id {} does not exist.", id);
 			throw new CustomNotFoundException("NOT FOUND");
 		}
+
+        logger.info("Get client with the id {}", id);
 		Client client = clientService.findById(id);
+        logger.info("Client with the id {} successfully retrieved.", id);
+
 		return new ResponseEntity<>(new ResponseWrapper(client), HttpStatus.OK);
 	}
 	
@@ -179,10 +186,17 @@ public class ClientController {
 	
 	@RequestMapping(value = "/clients/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteClientById(@PathVariable Long id) throws Exception {
+
+
 		if (!clientService.exists(id)) {
+            logger.info("Client with the id {} does not exist.", id);
 			throw new CustomNotFoundException("NOT FOUND");
 		}
+
+        logger.info("Delete client with the id {}", id);
 		clientService.delete(id);
+		logger.info("Client with the id {} successfully deleted.", id);
+
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

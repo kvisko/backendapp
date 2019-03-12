@@ -115,19 +115,27 @@ public class ClientService implements IClientService {
 	@Override
 	@Transactional
 	public void delete(Long id) {
+
+	    logger.debug("Deleting client with the id {} from the database.", id);
 		clientDataRepo.delete(id);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Client findById(Long id) {
+
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client clientInfo = clientRepo.findOne(id);
+
 		return clientInfo;
 	}
 
 	@Transactional(readOnly = true)
 	public boolean exists(Long id) {
+
+	    logger.debug("Checking if clients with the id {} exists in the database...", id);
 		boolean client = clientRepo.exists(id);
+
 		return client;
 	}
 
@@ -171,7 +179,7 @@ public class ClientService implements IClientService {
 
 		Boolean currentAvailability = false;
 
-		logger.debug("Retrieving client from the database...");
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 
 		if (client != null) {
@@ -192,7 +200,9 @@ public class ClientService implements IClientService {
 	@Override
 	public void updateAvailabilityStatus(Long id, Boolean currentAvailability) {
 
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
+		logger.debug("Updating client's availability...");
 		client.setIsClientAvailable(currentAvailability);
 
 		clientRepo.save(client);
@@ -201,7 +211,7 @@ public class ClientService implements IClientService {
 	@Override
 	public FrequencyDTO getClientFrequencySettingsById(Long id) {
 
-        logger.debug("Retrieving client from the database...");
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 
 		logger.debug("Retrieve client's frequencies.");
@@ -221,7 +231,7 @@ public class ClientService implements IClientService {
 
 		HttpStatus resultStatus = HttpStatus.NOT_MODIFIED;
 
-        logger.debug("Retrieving client from the database...");
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 
 		if (client != null) {
@@ -250,7 +260,7 @@ public class ClientService implements IClientService {
 				client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());
 
 				clientRepo.save(client);
-				logger.info("Frequencies successfully changed for the client with the id {}.", id);
+				logger.info("New frequencies persisted for the client with the id {}.", id);
 				
 				return postResponse.getStatusCode();
 
@@ -275,6 +285,7 @@ public class ClientService implements IClientService {
 	@Override
 	public HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
 
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 
 		HttpStatus resultStatus = HttpStatus.NOT_MODIFIED;
@@ -287,33 +298,36 @@ public class ClientService implements IClientService {
 				String configUrl = clientHost + SET_CONFIGURATION + "/" + clientConfigDTO.getIp() + "/"
 						+ clientConfigDTO.getPort();
 
-				System.out.println("-- configUrl is " + configUrl + " --");
+                logger.debug("Client URL: {}", configUrl);
 
+                logger.debug("Generating the getForObject method...");
 				RestTemplate restTemplate = new RestTemplate();
 				HttpStatus result = restTemplate.getForObject(configUrl, HttpStatus.class);
+                logger.debug("Getting the get method response...");
 
 				// Save changed to DB
+                logger.debug("Persist new configuration parameters into the database.");
 				client.setClientIp(clientConfigDTO.getIp());
 				client.setClientPort(clientConfigDTO.getPort());
 
 				clientRepo.save(client);
+				logger.debug("New configuration parameters persisted for the client with the id {}.", id);
 
 				return result;
 
 			} catch (HttpStatusCodeException e) {
 				String errorpayload = e.getResponseBodyAsString();
-				System.out.println(errorpayload);
+				logger.warn(errorpayload);
 				return resultStatus;
 
 			} catch (RestClientException e) {
-				System.out.println("no response payload, tell the user sth else ");
-				System.out.println(e);
+				logger.warn("No response payload.", e);
 				return resultStatus;
 			}
 
 		} else {
 
-			System.out.println("ClientService.setConfiguration: client " + id + " does not exist...");
+            logger.info("Client with the id {} does not exist.", id);
 			return resultStatus;
 		}
 	}
