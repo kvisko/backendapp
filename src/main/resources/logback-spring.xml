@@ -5,6 +5,8 @@
 
     <variable name="ROOT_LOG_LEVEL" value="${ROOT_LOG_LEVEL:-DEBUG}" />
     <variable name="BACKEND_APP_LOG_LEVEL" value="${BACKEND_APP_LOG_LEVEL:-INFO}" />
+    <variable name="SPRING_LOG_LEVEL" value="${SPRING_LOG_LEVEL:-INFO}" />
+    <variable name="HIBERNATE_LOG_LEVEL" value="${HIBERNATE_LOG_LEVEL:-INFO}" />
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -40,5 +42,16 @@
             <appender-ref ref="RollingFile" />
         <!--<appender-ref ref="Console" />-->
         </logger>
+
+    <!-- suppress spring's internal log level to ${SPRING_LOG_LEVEL} level-->
+        <logger name="org.springframework" level="${SPRING_LOG_LEVEL}">
+            <appender-ref ref="RollingFile" />
+            <appender-ref ref="Console" />
+        </logger>
+
+        <logger name="org.hibernate" level="${HIBERNATE_LOG_LEVEL}">
+            <appender-ref ref="RollingFile" />
+            <appender-ref ref="Console" />
+        </logger>
 
 </configuration>
