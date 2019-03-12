@@ -69,7 +69,7 @@ public class ClientController {
 	@RequestMapping(value = "/clients/addSingleClientData", method = RequestMethod.POST)
 	public ResponseEntity<?> addSingleClientData(@RequestBody WorkloadData workloadData) {
 		
-		logger.info("Add single workload data for the client with the id {}.", workloadData.getId());
+		logger.info("Add single WorkloadData for the client with the id {}.", workloadData.getId());
 		clientService.insertWorkloadData(workloadData);
 		logger.info("Workload data added.");
 		
@@ -80,12 +80,9 @@ public class ClientController {
 	@Consumes({ MediaType.APPLICATION_JSON })
 	public ResponseEntity<?> addClientData(@RequestBody WorkloadDTO workloadDataDTO) {
 
-		System.out.println("POST:  addClientData");
-		System.out.println("adding following data..");
-		
-		System.out.println(workloadDataDTO.toString());
-
+        logger.info("Add WorkloadDto for the client with the id {}.", workloadDataDTO.getClientId());
 		clientService.insertMultipleWorkloadData(workloadDataDTO);
+        logger.info("WorkloadDto added.");
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -94,9 +91,9 @@ public class ClientController {
 	@RequestMapping(value = "/clients/clientAvailability/{id}", method = RequestMethod.GET)
 	public Boolean checkClientAvailability(@PathVariable Long id) {
 		
-		System.out.println("GET: ClientController.checkClientAvailability for client " + id);
-		
+		logger.info("Check if the client with the id {} is available.", id);
 		Boolean availability = clientService.isClientAvailable(id);
+		logger.info("Client with the id {} is available - {}", id, availability);
 		
 		return availability;
 	}

@@ -86,8 +86,11 @@ public class ClientService implements IClientService {
 	@Override
 	@Transactional
 	public List<ClientData> insertMultipleWorkloadData(WorkloadDTO workloadDataDTO) {
+
+        logger.debug("Create new list of ClientData.");
 		List<ClientData> toBeInsertedClientData = new ArrayList<>();
 
+		logger.debug("Iterating through the WorkloadDto...");
 		for (WorkloadData workloadData : workloadDataDTO) {
 			
 			ClientData client = new ClientData();
@@ -100,8 +103,11 @@ public class ClientService implements IClientService {
 
 			toBeInsertedClientData.add(client);
 		}
-		
+		logger.debug("WorkloadDto data added to the list of ClientData.");
+
+		logger.debug("Persist list of ClientData.");
 		clientDataRepo.save(toBeInsertedClientData);
+		logger.debug("List of ClientData persisted.");
 
 		return toBeInsertedClientData;
 	}
@@ -128,34 +134,34 @@ public class ClientService implements IClientService {
 	@Override
 	public Boolean sendEcho(Client client) {
 
-		System.out.println("ClientService.sendEcho for id " + client.getClientId());
 		Boolean echo = false;
 
 		String clientHost = ConnectionData.getClientHostById(client);
 
 		String echoUrl = clientHost + SEND_ECHO + ECHO_VAL;
 
-		System.out.println("-- clinetPath is " + echoUrl + " --");
+		logger.debug("Client URL: {}", echoUrl);
 
 		Double result = 3d;
 
 		try {
+		    logger.debug("Generating the getForObject method...");
 			RestTemplate restTemplate = new RestTemplate();
 			result = restTemplate.getForObject(echoUrl, Double.class);
+			logger.debug("Getting the response from the client...");
 
 		} catch (HttpStatusCodeException e) {
+		    logger.warn(e.getResponseBodyAsString());
 			String errorpayload = e.getResponseBodyAsString();
 			System.out.println(errorpayload);
 
 		} catch (RestClientException e) {
-			System.out.println("no response payload, tell the user sth else ");
-			System.out.println(e);
+		    logger.warn("No response payload", e);
 		}
 
+		logger.debug("Evaluating the response...");
 		if (result == 4)
 			echo = true;
-
-		System.out.println(result);
 
 		return echo;
 	}
@@ -165,18 +171,19 @@ public class ClientService implements IClientService {
 
 		Boolean currentAvailability = false;
 
+		logger.debug("Retrieving client from the database.");
 		Client client = clientRepo.findOne(id);
 
 		if (client != null) {
 
-			System.out.println("ClientService check if client " + client.getClientAllias() + " is available...");
-
+            logger.debug("Send echo request to the client {}.", client.getClientAllias());
 			currentAvailability = this.sendEcho(client);
 			this.updateAvailabilityStatus(id, currentAvailability);
 
 		} else {
 
-			System.out.println("ClientService.isClientAvailable: client " + id + " does not exist...");
+		    logger.info("Client with the id {} does not exist.", id);
+
 		}
 
 		return currentAvailability;
