@@ -36,6 +36,8 @@ public class ClientController {
 	@Autowired
 	private ClientService clientService;
 
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	/* For frontend: display all managed clients and their data */
 	@RequestMapping(value = "/clients", method = RequestMethod.GET)
 	@Produces({ MediaType.APPLICATION_JSON })
