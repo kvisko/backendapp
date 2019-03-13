@@ -160,7 +160,9 @@ public class ClientController {
 	@RequestMapping(value = "/getClientDataById/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
 	public List<WorkloadData> getChartDataByClientId(@PathVariable Long id) {
 
+	    logger.info("Get all ClientData for the client with the id {}.", id);
 		List<WorkloadData> clientData = clientService.getAllDataById(id);
+        logger.info("ClientData for the client with the id {} successfully returned.", id);
 
 		return clientData;
 	}

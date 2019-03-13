@@ -55,17 +55,20 @@ public class ClientService implements IClientService {
 
 	public List<WorkloadData> getAllDataById(Long id) {
 
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 		List<ClientData> clientDataList = client.getClientData();
 
 		List<WorkloadData> workloadDataList = new ArrayList<>();
 
+		logger.debug("Fetching all client's ClientData...");
 		for(ClientData clientData: clientDataList){
 
 			WorkloadData workloadData = new WorkloadData(clientData);
 			workloadDataList.add(workloadData);
 
 		}
+		logger.debug("ClientData fetched.");
 
 		return workloadDataList;
 	}
