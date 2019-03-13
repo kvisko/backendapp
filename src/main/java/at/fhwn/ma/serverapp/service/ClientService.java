@@ -1,9 +1,11 @@
 package at.fhwn.ma.serverapp.service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -32,6 +34,8 @@ import at.fhwn.ma.serverapp.repository.ClientDataRepository;
 @Service
 public class ClientService implements IClientService {
 
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	final String CHANGE_FREQUENCIES_BY_CLIENT_ID = "/client/changeFrequencies/";
 	final String SET_CONFIGURATION = "/setConfiguration";
 	final String SEND_ECHO = "/client/echoResponse/";
@@ -45,26 +49,31 @@ public class ClientService implements IClientService {
 
 	@Override
 	public List<Client> loadAll() {
+
+	    logger.debug("Retrieving all clients from the database...");
 		List<Client> clients = clientRepo.findAll();
+
 		return clients;
 	}
 
 	public List<WorkloadData> getAllDataById(Long id) {
-		// List<ClientInfo> clients = clientService.loadAll();
-		// TODO transformisati listu klijenata u WorkloadData
 
-		/*
-		 * Client clientInfo = this.findById(id); List<ClientData> clientData =
-		 * clientInfo.getClientData();
-		 * 
-		 * List<WorkloadData> clientWorkloadData = new ArrayList<>();
-		 * 
-		 * for (ClientData client : clientData) { WorkloadData workloadData = new
-		 * WorkloadData(client); clientWorkloadData.add(workloadData); }
-		 * 
-		 * return clientWorkloadData;
-		 */
-		return null;
+        logger.debug("Retrieving client with the id {} from the database...", id);
+		Client client = clientRepo.findOne(id);
+		List<ClientData> clientDataList = client.getClientData();
+
+		List<WorkloadData> workloadDataList = new ArrayList<>();
+
+		logger.debug("Fetching all client's ClientData...");
+		for(ClientData clientData: clientDataList){
+
+			WorkloadData workloadData = new WorkloadData(clientData);
+			workloadDataList.add(workloadData);
+
+		}
+		logger.debug("ClientData fetched.");
+
+		return workloadDataList;
 	}
 
 	@Override
@@ -82,8 +91,11 @@ public class ClientService implements IClientService {
 	@Override
 	@Transactional
 	public List<ClientData> insertMultipleWorkloadData(WorkloadDTO workloadDataDTO) {
+
+        logger.debug("Create new list of ClientData.");
 		List<ClientData> toBeInsertedClientData = new ArrayList<>();
 
+		logger.debug("Iterating through the WorkloadDto...");
 		for (WorkloadData workloadData : workloadDataDTO) {
 			
 			ClientData client = new ClientData();
@@ -96,8 +108,11 @@ public class ClientService implements IClientService {
 
 			toBeInsertedClientData.add(client);
 		}
-		
+		logger.debug("WorkloadDto data added to the list of ClientData.");
+
+		logger.debug("Persist list of ClientData.");
 		clientDataRepo.save(toBeInsertedClientData);
+		logger.debug("List of ClientData persisted.");
 
 		return toBeInsertedClientData;
 	}
@@ -105,53 +120,61 @@ public class ClientService implements IClientService {
 	@Override
 	@Transactional
 	public void delete(Long id) {
+
+	    logger.debug("Deleting client with the id {} from the database.", id);
 		clientDataRepo.delete(id);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Client findById(Long id) {
+
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client clientInfo = clientRepo.findOne(id);
+
 		return clientInfo;
 	}
 
 	@Transactional(readOnly = true)
 	public boolean exists(Long id) {
+
+	    logger.debug("Checking if clients with the id {} exists in the database...", id);
 		boolean client = clientRepo.exists(id);
+
 		return client;
 	}
 
 	@Override
 	public Boolean sendEcho(Client client) {
 
-		System.out.println("ClientService.sendEcho for id " + client.getClientId());
 		Boolean echo = false;
 
 		String clientHost = ConnectionData.getClientHostById(client);
 
 		String echoUrl = clientHost + SEND_ECHO + ECHO_VAL;
 
-		System.out.println("-- clinetPath is " + echoUrl + " --");
+		logger.debug("Client URL: {}", echoUrl);
 
 		Double result = 3d;
 
 		try {
+		    logger.debug("Generating the getForObject method...");
 			RestTemplate restTemplate = new RestTemplate();
 			result = restTemplate.getForObject(echoUrl, Double.class);
+			logger.debug("Getting the response from the client...");
 
 		} catch (HttpStatusCodeException e) {
+		    logger.warn(e.getResponseBodyAsString());
 			String errorpayload = e.getResponseBodyAsString();
 			System.out.println(errorpayload);
 
 		} catch (RestClientException e) {
-			System.out.println("no response payload, tell the user sth else ");
-			System.out.println(e);
+		    logger.warn("No response payload", e);
 		}
 
+		logger.debug("Evaluating the response...");
 		if (result == 4)
 			echo = true;
-
-		System.out.println(result);
 
 		return echo;
 	}
@@ -161,18 +184,19 @@ public class ClientService implements IClientService {
 
 		Boolean currentAvailability = false;
 
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 
 		if (client != null) {
 
-			System.out.println("ClientService check if client " + client.getClientAllias() + " is available...");
-
+            logger.debug("Send echo request to the client {}.", client.getClientAllias());
 			currentAvailability = this.sendEcho(client);
 			this.updateAvailabilityStatus(id, currentAvailability);
 
 		} else {
 
-			System.out.println("ClientService.isClientAvailable: client " + id + " does not exist...");
+		    logger.info("Client with the id {} does not exist.", id);
+
 		}
 
 		return currentAvailability;
@@ -181,7 +205,9 @@ public class ClientService implements IClientService {
 	@Override
 	public void updateAvailabilityStatus(Long id, Boolean currentAvailability) {
 
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
+		logger.debug("Updating client's availability...");
 		client.setIsClientAvailable(currentAvailability);
 
 		clientRepo.save(client);
@@ -190,26 +216,26 @@ public class ClientService implements IClientService {
 	@Override
 	public FrequencyDTO getClientFrequencySettingsById(Long id) {
 
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 
+		logger.debug("Retrieve client's frequencies.");
 		Double collectionFrequency = client.getDataCollectionFrequency();
 		Double uploadFrequency = client.getDataUploadFrequency();
 
+		logger.debug("Creating FrequencyDTO with retrieved frequencies for the response.");
+		logger.info("Client - {}. Data collection frequency - {}, data upload frequency - {}.", id, collectionFrequency, uploadFrequency);
 		FrequencyDTO frequencyDTO = new FrequencyDTO(collectionFrequency, uploadFrequency);
 
 		return frequencyDTO;
-
 	}
 
 	@Override
 	public HttpStatus changeFrequencyByClientId(Long id, FrequencyDTO frequencyDTO) {
 
-		System.out.println("ClientService.changeFrequencyByClientId for id " + id);
-		System.out.println("New freq are");
-		System.out.println(frequencyDTO);
-		
 		HttpStatus resultStatus = HttpStatus.NOT_MODIFIED;
 
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 
 		if (client != null) {
@@ -218,44 +244,44 @@ public class ClientService implements IClientService {
 
 			String changeFreqUrl = clientHost + CHANGE_FREQUENCIES_BY_CLIENT_ID;
 
-			System.out.println("-- changeFreqUrl is " + changeFreqUrl + " --");
+            logger.debug("Client URL: {}", changeFreqUrl);
 
 			try {
 				
-				System.out.println("ClientService.changeFrequencyByClientId: Begin POST request");
-				System.out.println("--- CHANGE FREQ PARAMS ---");
-				
+				logger.debug("Generating HTTP header.");
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				
 				RestTemplate restTemplate = new RestTemplate();
-						
+
+				logger.debug("Generating the postForEntity method...");
 				ResponseEntity<FrequencyDTO> postResponse = restTemplate.postForEntity(changeFreqUrl, frequencyDTO, FrequencyDTO.class);
-				
-				System.out.println("--- FREQ PARAMS CHANGED ---");
+				logger.debug("Getting the post method response...");
 
 				// saving updated values into a database
+                logger.debug("Persist new frequencies into the database.");
 				client.setDataCollectionFrequency(frequencyDTO.getCollectionFrequency());
 				client.setDataUploadFrequency(frequencyDTO.getUploadFrequency());
 
 				clientRepo.save(client);
+				logger.info("New frequencies persisted for the client with the id {}.", id);
 				
 				return postResponse.getStatusCode();
 
 			} catch (HttpStatusCodeException e) {
 				String errorpayload = e.getResponseBodyAsString();
-				System.out.println(errorpayload);
+                logger.warn(errorpayload);
 				return resultStatus;
 
 			} catch (RestClientException e) {
-				System.out.println("no response payload, tell the user sth else ");
-				System.out.println(e);
+				logger.warn("No response payload.", e);
 				return resultStatus;
 			}
 
 		} else {
 
-			System.out.println("Client with id " + id + " does not exist...");
+            logger.info("Client with the id {} does not exist.", id);
+
 			return resultStatus;
 		}
 	}
@@ -263,6 +289,7 @@ public class ClientService implements IClientService {
 	@Override
 	public HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
 
+        logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
 
 		HttpStatus resultStatus = HttpStatus.NOT_MODIFIED;
@@ -275,33 +302,36 @@ public class ClientService implements IClientService {
 				String configUrl = clientHost + SET_CONFIGURATION + "/" + clientConfigDTO.getIp() + "/"
 						+ clientConfigDTO.getPort();
 
-				System.out.println("-- configUrl is " + configUrl + " --");
+                logger.debug("Client URL: {}", configUrl);
 
+                logger.debug("Generating the getForObject method...");
 				RestTemplate restTemplate = new RestTemplate();
 				HttpStatus result = restTemplate.getForObject(configUrl, HttpStatus.class);
+                logger.debug("Getting the get method response...");
 
 				// Save changed to DB
+                logger.debug("Persist new configuration parameters into the database.");
 				client.setClientIp(clientConfigDTO.getIp());
 				client.setClientPort(clientConfigDTO.getPort());
 
 				clientRepo.save(client);
+				logger.debug("New configuration parameters persisted for the client with the id {}.", id);
 
 				return result;
 
 			} catch (HttpStatusCodeException e) {
 				String errorpayload = e.getResponseBodyAsString();
-				System.out.println(errorpayload);
+				logger.warn(errorpayload);
 				return resultStatus;
 
 			} catch (RestClientException e) {
-				System.out.println("no response payload, tell the user sth else ");
-				System.out.println(e);
+				logger.warn("No response payload.", e);
 				return resultStatus;
 			}
 
 		} else {
 
-			System.out.println("ClientService.setConfiguration: client " + id + " does not exist...");
+            logger.info("Client with the id {} does not exist.", id);
 			return resultStatus;
 		}
 	}
@@ -309,23 +339,30 @@ public class ClientService implements IClientService {
 	@Override
 	public Long createClient(ClientDto clientDto) {
 
+		logger.debug("Create new Client object with ClientDto data.");
 		Client client = new Client(clientDto);
 
+		logger.debug("Persist client object into the database.");
 		client = clientRepo.save(client);
+		logger.debug("Client persisted.");
 
 		return client.getClientId();
 	}
 
 	public void insertWorkloadData(WorkloadData workloadData) {
 
+		logger.debug("Extract WorkloadData parameters.");
 		Double cpuUsage = workloadData.getCpuUsage();
 		Double memoryUsage = workloadData.getMemoryUsage();
 		Date timestamp = workloadData.getTimestamp();
 		Long clientId = workloadData.getId();
 
+		logger.debug("Create new ClientData object with WorkloadData parameters");
 		ClientData client = new ClientData(cpuUsage, memoryUsage, timestamp, clientId);
 
+		logger.debug("Persist ClientData object into the database");
 		clientDataRepo.save(client);
+		logger.debug("ClientData persisted.");
 
 	}
 }
