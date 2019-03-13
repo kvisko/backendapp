@@ -50,21 +50,20 @@ public class ClientService implements IClientService {
 	}
 
 	public List<WorkloadData> getAllDataById(Long id) {
-		// List<ClientInfo> clients = clientService.loadAll();
-		// TODO transformisati listu klijenata u WorkloadData
 
-		/*
-		 * Client clientInfo = this.findById(id); List<ClientData> clientData =
-		 * clientInfo.getClientData();
-		 * 
-		 * List<WorkloadData> clientWorkloadData = new ArrayList<>();
-		 * 
-		 * for (ClientData client : clientData) { WorkloadData workloadData = new
-		 * WorkloadData(client); clientWorkloadData.add(workloadData); }
-		 * 
-		 * return clientWorkloadData;
-		 */
-		return null;
+		Client client = clientRepo.findOne(id);
+		List<ClientData> clientDataList = client.getClientData();
+
+		List<WorkloadData> workloadDataList = new ArrayList<>();
+
+		for(ClientData clientData: clientDataList){
+
+			WorkloadData workloadData = new WorkloadData(clientData);
+			workloadDataList.add(workloadData);
+
+		}
+
+		return workloadDataList;
 	}
 
 	@Override
