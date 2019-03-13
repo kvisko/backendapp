@@ -1,14 +1,19 @@
 package at.fhwn.ma.serverapp.test.controller;
 
 import at.fhwn.ma.serverapp.controller.ClientController;
-import at.fhwn.ma.serverapp.dto.ClientDto;
+import at.fhwn.ma.serverapp.dto.*;
 import at.fhwn.ma.serverapp.model.Client;
+import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.service.ClientService;
 import at.fhwn.ma.serverapp.test.Util.ApplicationTest;
+import at.fhwn.ma.serverapp.util.ResponseWrapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
@@ -29,7 +34,7 @@ public class ClientControllerTest extends ApplicationTest{
 
 
     @Test
-    public void getAllClients(){
+    public void getAllClientsTest(){
 
         //given
         Client client = new Client();
@@ -58,27 +63,260 @@ public class ClientControllerTest extends ApplicationTest{
 
     }
 
+//    @Test
+//    public void createClientTest(){
+//
+//        //given
+//        Long id = 5L;
+//        ClientDto clientDto = new ClientDto();
+//
+//        //when ClientService is triggered with given data, return a given id
+//        Mockito.when(clientService.createClient(clientDto))
+//                .thenReturn(id);
+//
+//        ResponseEntity result = clientController.createClient(clientDto);
+//        Long clientCreateResult = (Long) result.getBody();
+//
+//        //assert that ClientController with given data returns client with matching id
+//        assertThat(clientCreateResult)
+//                .isEqualTo(id);
+//
+//        //verify that the ClientService method is invoked certain amount of times
+//        Mockito.verify(clientService, Mockito.times(1))
+//                .createClient(clientDto);
+//
+//    }
+
     @Test
-    public void createClient(){
+    public void addSingleClientDataTest(){
+
+        //TODO proveriti relevantnost testa
 
         //given
-        Long id = 5L;
-        ClientDto clientDto = new ClientDto();
+        WorkloadData workloadData = new WorkloadData();
+        ResponseEntity status = new ResponseEntity(HttpStatus.OK);
 
-        //when ClientService is triggered with given data, return a given id
-        Mockito.when(clientService.createClient(clientDto))
-                .thenReturn(id);
+        //do nothing when ClientService is triggered with given data
+        Mockito.doNothing()
+                .when(clientService).insertWorkloadData(workloadData);
 
-        ResponseEntity result = clientController.createClient(clientDto);
-        Long clientCreateResult = (Long) result.getBody();
+        ResponseEntity addSingleClientDataResult = clientController.addSingleClientData(workloadData);
 
-        //assert that ClientController with given data returns client with matching id
-        assertThat(clientCreateResult)
-                .isEqualTo(id);
+        //assert that ClientController with given data returns a matching HttpStatus.OK
+        assertThat(addSingleClientDataResult)
+                .isEqualTo(status);
 
         //verify that the ClientService method is invoked certain amount of times
         Mockito.verify(clientService, Mockito.times(1))
-                .createClient(clientDto);
+                .insertWorkloadData(workloadData);
+
+    }
+
+    @Test
+    public void addClientDataTest(){
+
+        //TODO proveriti relevantnost testa
+
+        //given
+        WorkloadDTO workloadDTO = new WorkloadDTO();
+        HttpStatus status = HttpStatus.OK;
+        List<ClientData> clientData = new ArrayList<>();
+
+        //when ClientService is triggered with given data, return a given list of objects
+        Mockito.when(clientService.insertMultipleWorkloadData(workloadDTO))
+                .thenReturn(clientData);
+
+        ResponseEntity result = clientController.addClientData(workloadDTO);
+        HttpStatus addClientDataResult = result.getStatusCode();
+
+        //assert that ClientController with given data returns a matching HttpStatus.OK
+        assertThat(addClientDataResult)
+                .isEqualTo(status);
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .insertMultipleWorkloadData(workloadDTO);
+
+    }
+
+    @Test
+    public void checkClientAvailabilityTest(){
+
+        //given
+        Long ID = 5L;
+        Boolean availability = true;
+
+        //when ClientService is triggered with given data, return a given Boolean value
+        Mockito.when(clientService.isClientAvailable(ID))
+                .thenReturn(availability);
+
+        Boolean checkClientAvailabilityResult = clientController.checkClientAvailability(ID);
+
+        //assert that ClientController with given data returns a matching Boolean value
+        assertThat(checkClientAvailabilityResult)
+                .isEqualTo(availability);
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .isClientAvailable(ID);
+
+    }
+
+    @Test
+    public void changeFrequencyByClientIdTest(){
+
+        //given
+        Long ID = 5L;
+        FrequencyDTO frequencyDTO = new FrequencyDTO();
+        HttpStatus status = HttpStatus.OK;
+
+        //when ClientService is triggered with given data, return a given HttpStatus.OK
+        Mockito.when(clientService.changeFrequencyByClientId(ID, frequencyDTO))
+                .thenReturn(status);
+
+        ResponseEntity<?> result = clientController.changeFrequencyByClientId(ID, frequencyDTO);
+        HttpStatus changeFrequencyByClientIdResult = result.getStatusCode();
+
+        //assert that ClientController with given data returns a matching HttpStatus.OK
+        assertThat(changeFrequencyByClientIdResult)
+                .isEqualTo(status);
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .changeFrequencyByClientId(ID, frequencyDTO);
+
+    }
+
+    @Test
+    public void getClientFrequencySettingsTest(){
+
+        //given
+        Long ID = 5L;
+        FrequencyDTO frequencyDTO = new FrequencyDTO();
+        frequencyDTO.setCollectionFrequency(3D);
+
+        //when ClientService is triggered with given data, return a given FrequencyDTO
+        Mockito.when(clientService.getClientFrequencySettingsById(ID))
+                .thenReturn(frequencyDTO);
+
+        FrequencyDTO getClientFrequencySettingsResult = clientController.getClientFrequencySettings(ID);
+
+        //assert that ClientController with given data returns FrequencyDTO with matching collection freq
+        assertThat(getClientFrequencySettingsResult.getCollectionFrequency())
+                .isEqualTo(frequencyDTO.getCollectionFrequency());
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .getClientFrequencySettingsById(ID);
+
+    }
+
+    @Test
+    public void setConfigurationTest(){
+
+        //given
+        Long ID = 5L;
+        HttpStatus status = HttpStatus.OK;
+        ClientConfigDTO clientConfigDTO = new ClientConfigDTO();
+
+        //when ClientService is triggered with given data, return a given HttpStatus.OK
+        Mockito.when(clientService.setConfiguration(ID, clientConfigDTO))
+                .thenReturn(status);
+
+        ResponseEntity result = clientController.setConfiguration(ID, clientConfigDTO);
+        HttpStatus setConfigurationResult = result.getStatusCode();
+
+        //assert that ClientController with given data returns matching HttpStatus.OK
+        assertThat(setConfigurationResult)
+                .isEqualTo(status);
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .setConfiguration(ID, clientConfigDTO);
+
+    }
+
+//    @Test
+//    public void getClientByIdTest() throws Exception {
+//
+//        //given
+//        Long ID = 5L;
+//        Client client = new Client();
+//        client.setClientId(ID);
+//
+//        Mockito.when(clientService.findById(ID))
+//                .thenReturn(client);
+//
+//        ResponseEntity result = clientController.getClientById(ID);
+//        Object getClientByIdResult = result.getBody();
+//
+//        assertThat(getClientByIdResult)
+//                .isEqualTo(client);
+//
+//    }
+
+    @Test
+    public void getChartDataByClientIdTest(){
+
+        //given
+        Long ID = 5L;
+        Double CPU_USAGE = 3D;
+        WorkloadData workloadData = new WorkloadData();
+        workloadData.setCpuUsage(CPU_USAGE);
+        List<WorkloadData> workloadDataList = new ArrayList<>();
+        workloadDataList.add(workloadData);
+
+        //when ClientService is triggered with given data, return a given list of objects
+        Mockito.when(clientService.getAllDataById(ID))
+                .thenReturn(workloadDataList);
+
+        List<WorkloadData> getChartDataByClientIdResult = clientController.getChartDataByClientId(ID);
+
+        //assert that ClientController returns non-empty list of objects
+        assertThat(getChartDataByClientIdResult)
+                .isNotEmpty();
+
+        //assert that ClientController returns a matching list of WorkloadData
+        assertThat(getChartDataByClientIdResult)
+                .isEqualTo(workloadDataList);
+
+        //assert that ClientController returns a list of WorkloadData with matching cpu usage at index 0
+        assertThat(getChartDataByClientIdResult.get(0).getCpuUsage())
+                .isEqualTo(CPU_USAGE);
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .getAllDataById(ID);
+
+    }
+
+    @Test
+    public void deleteClientById() throws Exception {
+
+        //given
+        Long ID = 5L;
+        Boolean EXIST = true;
+        Client client = new Client();
+        HttpStatus status = HttpStatus.OK;
+
+        //when ClientService checks if client with id ID exists, return true
+        Mockito.when(clientService.exists(ID))
+                .thenReturn(EXIST);
+
+        //do nothing when ClientService is triggered with given data
+        Mockito.doNothing()
+                .when(clientService).delete(ID);
+
+        ResponseEntity result = clientController.deleteClientById(ID);
+        HttpStatus deleteClientByIdResult = result.getStatusCode();
+
+        //assert that ClientController with given data returns matching HttpStatus.OK
+        assertThat(deleteClientByIdResult)
+                .isEqualTo(status);
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .delete(ID);
 
     }
 
