@@ -49,7 +49,10 @@ public class ClientService implements IClientService {
 
 	@Override
 	public List<Client> loadAll() {
+
+	    logger.debug("Retrieving all clients from the database...");
 		List<Client> clients = clientRepo.findAll();
+
 		return clients;
 	}
 
@@ -225,7 +228,6 @@ public class ClientService implements IClientService {
 		FrequencyDTO frequencyDTO = new FrequencyDTO(collectionFrequency, uploadFrequency);
 
 		return frequencyDTO;
-
 	}
 
 	@Override

@@ -44,8 +44,10 @@ public class ClientController {
 	@RequestMapping(value = "/clients", method = RequestMethod.GET)
 	@Produces({ MediaType.APPLICATION_JSON })
 	public ResponseEntity<?> getAllClients() {
-		
+
+	    logger.info("Get all clients from the database.");
 		List<Client> clients = clientService.loadAll();
+		logger.info("All clients successfully returned.");
 		
 		return new ResponseEntity<>(clients, HttpStatus.OK);
 	}
