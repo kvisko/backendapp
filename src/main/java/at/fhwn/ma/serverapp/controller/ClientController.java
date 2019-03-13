@@ -160,26 +160,7 @@ public class ClientController {
 	@RequestMapping(value = "/getClientDataById/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
 	public List<WorkloadData> getChartDataByClientId(@PathVariable Long id) {
 
-		List<WorkloadData> clientData = new ArrayList<>();
-
-		ClientData client1 = new ClientData();
-
-		WorkloadData data1 = new WorkloadData(client1);
-		clientData.add(data1);
-		client1.setCpuUsage(58D);
-		client1.setMemoryUsage(79D);
-		WorkloadData data2 = new WorkloadData(client1);
-		clientData.add(data2);
-		client1.setCpuUsage(8D);
-		client1.setMemoryUsage(7D);
-		WorkloadData data3 = new WorkloadData(client1);
-		clientData.add(data3);
-		client1.setCpuUsage(528D);
-		client1.setMemoryUsage(179D);
-		WorkloadData data4 = new WorkloadData(client1);
-		clientData.add(data4);
-
-		clientData = clientService.getAllDataById(id);
+		List<WorkloadData> clientData = clientService.getAllDataById(id);
 
 		return clientData;
 	}
