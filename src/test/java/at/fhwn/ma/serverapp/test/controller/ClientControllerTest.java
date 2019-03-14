@@ -53,7 +53,7 @@ public class ClientControllerTest extends ApplicationTest{
         assertThat(clientSearchResult)
                 .isNotEmpty();
 
-        //assert that ClientController returns client with matching allias
+        //assert that ClientController returns Client with matching allias
         assertThat(clientSearchResult.get(0).getClientAllias())
                 .isEqualTo(client.getClientAllias());
 
@@ -63,29 +63,29 @@ public class ClientControllerTest extends ApplicationTest{
 
     }
 
-//    @Test
-//    public void createClientTest(){
-//
-//        //given
-//        Long id = 5L;
-//        ClientDto clientDto = new ClientDto();
-//
-//        //when ClientService is triggered with given data, return a given id
-//        Mockito.when(clientService.createClient(clientDto))
-//                .thenReturn(id);
-//
-//        ResponseEntity result = clientController.createClient(clientDto);
-//        Long clientCreateResult = (Long) result.getBody();
-//
-//        //assert that ClientController with given data returns client with matching id
-//        assertThat(clientCreateResult)
-//                .isEqualTo(id);
-//
-//        //verify that the ClientService method is invoked certain amount of times
-//        Mockito.verify(clientService, Mockito.times(1))
-//                .createClient(clientDto);
-//
-//    }
+    @Test
+    public void createClientTest(){
+
+        //given
+        Long id = 5L;
+        ClientDto clientDto = new ClientDto();
+
+        //when ClientService is triggered with given data, return a given id
+        Mockito.when(clientService.createClient(clientDto))
+                .thenReturn(id);
+
+        ResponseEntity result = clientController.createClient(clientDto);
+        Long clientCreateResult = (Long) result.getBody();
+
+        //assert that ClientController with given data returns client with matching id
+        assertThat(clientCreateResult)
+                .isEqualTo(id);
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .createClient(clientDto);
+
+    }
 
     @Test
     public void addSingleClientDataTest(){
@@ -236,24 +236,41 @@ public class ClientControllerTest extends ApplicationTest{
 
     }
 
-//    @Test
-//    public void getClientByIdTest() throws Exception {
-//
-//        //given
-//        Long ID = 5L;
-//        Client client = new Client();
-//        client.setClientId(ID);
-//
-//        Mockito.when(clientService.findById(ID))
-//                .thenReturn(client);
-//
-//        ResponseEntity result = clientController.getClientById(ID);
-//        Object getClientByIdResult = result.getBody();
-//
-//        assertThat(getClientByIdResult)
-//                .isEqualTo(client);
-//
-//    }
+    @Test
+    public void getClientByIdTest() throws Exception {
+
+        //given
+        Long ID = 5L;
+        Boolean EXIST = true;
+        String ALIAS = "Milos";
+        Client client = new Client();
+        client.setClientId(ID);
+        client.setClientAllias(ALIAS);
+
+        //when ClientService is triggered with given data, return a given Client object
+        Mockito.when(clientService.findById(ID))
+                .thenReturn(client);
+
+        //when ClientService checks if client with id ID exists, return true
+        Mockito.when(clientService.exists(ID))
+                .thenReturn(EXIST);
+
+        ResponseEntity result = clientController.getClientById(ID);
+        Client getClientByIdResult = (Client) result.getBody();
+
+        //assert that ClientController returns a matching Client
+        assertThat(getClientByIdResult)
+                .isEqualTo(client);
+
+        //assert that ClientController returns a Client with matching alias
+        assertThat(getClientByIdResult.getClientAllias())
+                .isEqualTo(ALIAS);
+
+        //verify that the ClientService method is invoked certain amount of times
+        Mockito.verify(clientService, Mockito.times(1))
+                .findById(ID);
+
+    }
 
     @Test
     public void getChartDataByClientIdTest(){
