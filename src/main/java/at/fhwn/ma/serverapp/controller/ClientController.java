@@ -156,7 +156,7 @@ public class ClientController {
 		Client client = clientService.findById(id);
         logger.info("Client with the id {} successfully retrieved.", id);
 
-		return new ResponseEntity<>(new ResponseWrapper(client), HttpStatus.OK);
+		return new ResponseEntity<>(client, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/getClientDataById/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
