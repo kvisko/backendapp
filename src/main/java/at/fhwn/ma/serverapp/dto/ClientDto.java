@@ -21,7 +21,7 @@ public class ClientDto {
 
 	private String serverPort;
 	
-	private ClientDto() {}
+	public ClientDto() {}
 
 	public String getClientAllias() {
 		return clientAllias;
