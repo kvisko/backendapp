@@ -1,12 +1,10 @@
 package at.fhwn.ma.serverapp.test.repository;
 
 import at.fhwn.ma.serverapp.ServerApplication;
-import at.fhwn.ma.serverapp.dto.WorkloadData;
 import at.fhwn.ma.serverapp.model.Client;
 import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.repository.ClientDataRepository;
 import at.fhwn.ma.serverapp.repository.ClientRepository;
-import org.hibernate.Hibernate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -40,8 +36,8 @@ public class ClientDataRepositoryTest {
     @Autowired
     private ClientRepository clientRepository;
 
-    Client client = new Client();
-    Client clientSaved = null;
+    private Client client = new Client();
+    private Client clientSaved = null;
 
     @Before
     public void setup(){
