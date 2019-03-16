@@ -2,6 +2,7 @@ package at.fhwn.ma.serverapp.test.repository;
 
 import at.fhwn.ma.serverapp.ServerApplication;
 import at.fhwn.ma.serverapp.model.Client;
+import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.repository.ClientRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,14 +79,6 @@ public class ClientRepositoryTest {
         assertThat(loadAllResult.get(1).getClientAllias())
                 .isEqualTo("Milos2");
 
-        clientRepository.deleteAll();
-
-        List<Client> loadAllResult2 = clientRepository.findAll();
-
-        //assert that IClientRepository returns empty list of objects after deleteAll
-        assertThat(loadAllResult2)
-                .isEmpty();
-
     }
 
     @Test
@@ -150,7 +144,6 @@ public class ClientRepositoryTest {
         //TODO h2 deletes all entries at this point so new Client has to be persisted for testing purposes, find out why
 
         //given
-//        Long ID = 1L;
         Double CURRENT_COLLECTION_FREQ = 3D;
         Double CURRENT_UPLOAD_FREQ = 7D;
         Double COLLECTION_FREQ = 4D;
@@ -198,7 +191,6 @@ public class ClientRepositoryTest {
         //TODO h2 deletes all entries at this point so new Client has to be persisted for testing purposes, find out why
 
         //given
-//        Long ID = 1L;
         Double CURRENT_COLLECTION_FREQ = 3D;
         Double CURRENT_UPLOAD_FREQ = 7D;
 
@@ -268,6 +260,28 @@ public class ClientRepositoryTest {
                 .isEqualTo(IP);
         assertThat(setConfiguraionResult.getClientPort())
                 .isEqualTo(PORT);
+
+    }
+
+    @Test
+    public void deleteTest(){
+
+        //given
+        Long ID = 1L;
+
+        Client client = clientRepository.findOne(ID);
+
+        //assert that IClientRepository with given data returns existing Client
+        assertThat(client)
+                .isNotNull();
+
+        clientRepository.delete(client.getClientId());
+
+        Client deleteResult = clientRepository.findOne(ID);
+
+        //assert that IClientRepository after deletion does not contain Client object with given ID
+        assertThat(deleteResult)
+                .isNull();
 
     }
 
