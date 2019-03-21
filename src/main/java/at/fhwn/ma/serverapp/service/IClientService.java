@@ -18,7 +18,7 @@ public interface IClientService {
 	
 	List<WorkloadData> getAllDataById(Long id);
 
-	void delete(Long id);
+	void deleteClientById(Long id);
 
 	Client findById(Long id);
 
@@ -36,7 +36,7 @@ public interface IClientService {
 
 	FrequencyDTO getClientFrequencySettingsById(Long id);
 	
-	HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO);
+	HttpStatus setConfigurationById(Long id, ClientConfigDTO clientConfigDTO);
 	
 	Long createClient(ClientDto clientDto);
 

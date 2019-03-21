@@ -1,15 +1,12 @@
 package at.fhwn.ma.serverapp.controller;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,10 +23,8 @@ import at.fhwn.ma.serverapp.dto.FrequencyDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadData;
 import at.fhwn.ma.serverapp.exception.CustomNotFoundException;
-import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.model.Client;
 import at.fhwn.ma.serverapp.service.ClientService;
-import at.fhwn.ma.serverapp.util.ResponseWrapper;
 
 @RestController
 @RequestMapping("/api")
@@ -91,7 +86,7 @@ public class ClientController {
 
 	/* Check if client is available */
 	@RequestMapping(value = "/clients/clientAvailability/{id}", method = RequestMethod.GET)
-	public Boolean checkClientAvailability(@PathVariable Long id) {
+	public Boolean checkClientAvailabilityById(@PathVariable Long id) {
 		
 		logger.info("Check if the client with the id {} is available.", id);
 		Boolean availability = clientService.isClientAvailable(id);
@@ -115,7 +110,7 @@ public class ClientController {
 	
 	/* it works */
 	@RequestMapping(value = "/clients/getClientFrequencySettings/{id}", method = RequestMethod.GET)
-	public FrequencyDTO getClientFrequencySettings(@PathVariable Long id) {
+	public FrequencyDTO getClientFrequencySettingsById(@PathVariable Long id) {
 
 	    logger.info("Get data and collection frequencies for the client with the id {}.", id);
 		FrequencyDTO frequencyDTO = clientService.getClientFrequencySettingsById(id);
@@ -126,13 +121,13 @@ public class ClientController {
 
 	/* change client ip and client port. if change successful, save the settings to the dabase */
 	@RequestMapping(value = "/clients/setConfiguration/{id}", method = RequestMethod.POST)
-	public ResponseEntity<?> setConfiguration(@PathVariable Long id, @RequestBody ClientConfigDTO clientConfigDTO) {
+	public ResponseEntity<?> setConfigurationByClientId(@PathVariable Long id, @RequestBody ClientConfigDTO clientConfigDTO) {
 
 		logger.info("Set configuration for the client with the id {}.", id);
 		logger.info("Provided parameters: client IP - {}, client port - {}", clientConfigDTO.getIp(),
                 clientConfigDTO.getPort());
-		HttpStatus result = clientService.setConfiguration(id, clientConfigDTO);
-        logger.info("setConfiguration - {}.", result.getReasonPhrase());
+		HttpStatus result = clientService.setConfigurationById(id, clientConfigDTO);
+        logger.info("setConfigurationById - {}.", result.getReasonPhrase());
 
 		return new ResponseEntity<>(result);
 
@@ -179,7 +174,7 @@ public class ClientController {
 		}
 
         logger.info("Delete client with the id {}", id);
-		clientService.delete(id);
+		clientService.deleteClientById(id);
 		logger.info("Client with the id {} successfully deleted.", id);
 
 		return new ResponseEntity<>(HttpStatus.OK);
