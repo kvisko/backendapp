@@ -110,10 +110,10 @@ public class ClientService implements IClientService {
 		logger.debug("WorkloadDto data added to the list of ClientData.");
 
 		logger.debug("Persist list of ClientData.");
-		clientDataRepo.save(toBeInsertedClientData);
+        List<ClientData> insertedData = clientDataRepo.save(toBeInsertedClientData);
 		logger.debug("List of ClientData persisted.");
 
-		return toBeInsertedClientData;
+		return insertedData;
 	}
 
 	@Override
