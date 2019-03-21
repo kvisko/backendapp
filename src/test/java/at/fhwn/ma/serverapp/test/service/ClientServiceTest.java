@@ -194,12 +194,12 @@ public class ClientServiceTest extends ApplicationTest{
 
         //do nothing when ClientService is triggered with given data
         Mockito.doNothing()
-                .when(clientDataRepository).delete(ID);
+                .when(clientRepository).delete(ID);
 
-        clientService.delete(ID);
+        clientService.deleteClientById(ID);
 
         //verify that the ClientRepository method is invoked certain amount of times
-        Mockito.verify(clientDataRepository, Mockito.times(1))
+        Mockito.verify(clientRepository, Mockito.times(1))
                 .delete(ID);
 
     }
@@ -262,6 +262,7 @@ public class ClientServiceTest extends ApplicationTest{
         String clientHost = ConnectionData.getClientHostById(client);
         String echoUrl = clientHost + SEND_ECHO + ECHO_VAL;
         Double RESULT = 4D;
+        Boolean TRUE = true;
 
         //when RestTemplate is triggered with given data, return a given result
         Mockito.when(restTemplate.getForObject(echoUrl, Double.class))
@@ -271,7 +272,7 @@ public class ClientServiceTest extends ApplicationTest{
 
         //assert that ClientService with given data returns given result
         assertThat(sendEchoResult)
-                .isEqualTo(RESULT);
+                .isEqualTo(TRUE);
 
         //verify that the RestTemplate method is invoked certain amount of times
         Mockito.verify(restTemplate, times(1))
@@ -411,7 +412,7 @@ public class ClientServiceTest extends ApplicationTest{
         Mockito.when(restTemplate.getForObject(configUrl, HttpStatus.class))
                 .thenReturn(OK);
 
-        HttpStatus setConfigurationResult = clientService.setConfiguration(ID, clientConfigDTO);
+        HttpStatus setConfigurationResult = clientService.setConfigurationById(ID, clientConfigDTO);
 
         //assert that ClientService with given data returns given HttpStatus
         assertThat(setConfigurationResult)

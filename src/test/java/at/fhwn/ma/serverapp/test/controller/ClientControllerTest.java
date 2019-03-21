@@ -150,7 +150,7 @@ public class ClientControllerTest extends ApplicationTest{
         Mockito.when(clientService.isClientAvailable(ID))
                 .thenReturn(availability);
 
-        Boolean checkClientAvailabilityResult = clientController.checkClientAvailability(ID);
+        Boolean checkClientAvailabilityResult = clientController.checkClientAvailabilityById(ID);
 
         //assert that ClientController with given data returns a matching Boolean value
         assertThat(checkClientAvailabilityResult)
@@ -199,7 +199,7 @@ public class ClientControllerTest extends ApplicationTest{
         Mockito.when(clientService.getClientFrequencySettingsById(ID))
                 .thenReturn(frequencyDTO);
 
-        FrequencyDTO getClientFrequencySettingsResult = clientController.getClientFrequencySettings(ID);
+        FrequencyDTO getClientFrequencySettingsResult = clientController.getClientFrequencySettingsById(ID);
 
         //assert that ClientController with given data returns FrequencyDTO with matching collection freq
         assertThat(getClientFrequencySettingsResult.getCollectionFrequency())
@@ -220,10 +220,10 @@ public class ClientControllerTest extends ApplicationTest{
         ClientConfigDTO clientConfigDTO = new ClientConfigDTO();
 
         //when ClientService is triggered with given data, return a given HttpStatus.OK
-        Mockito.when(clientService.setConfiguration(ID, clientConfigDTO))
+        Mockito.when(clientService.setConfigurationById(ID, clientConfigDTO))
                 .thenReturn(status);
 
-        ResponseEntity result = clientController.setConfiguration(ID, clientConfigDTO);
+        ResponseEntity result = clientController.setConfigurationByClientId(ID, clientConfigDTO);
         HttpStatus setConfigurationResult = result.getStatusCode();
 
         //assert that ClientController with given data returns matching HttpStatus.OK
@@ -232,7 +232,7 @@ public class ClientControllerTest extends ApplicationTest{
 
         //verify that the ClientService method is invoked certain amount of times
         Mockito.verify(clientService, Mockito.times(1))
-                .setConfiguration(ID, clientConfigDTO);
+                .setConfigurationById(ID, clientConfigDTO);
 
     }
 
@@ -322,7 +322,7 @@ public class ClientControllerTest extends ApplicationTest{
 
         //do nothing when ClientService is triggered with given data
         Mockito.doNothing()
-                .when(clientService).delete(ID);
+                .when(clientService).deleteClientById(ID);
 
         ResponseEntity result = clientController.deleteClientById(ID);
         HttpStatus deleteClientByIdResult = result.getStatusCode();
@@ -333,7 +333,7 @@ public class ClientControllerTest extends ApplicationTest{
 
         //verify that the ClientService method is invoked certain amount of times
         Mockito.verify(clientService, Mockito.times(1))
-                .delete(ID);
+                .deleteClientById(ID);
 
     }
 
