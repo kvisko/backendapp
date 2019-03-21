@@ -18,7 +18,7 @@ public interface IClientService {
 	
 	List<WorkloadData> getAllDataById(Long id);
 
-	void delete(Long id);
+	void deleteClientById(Long id);
 
 	Client findById(Long id);
 

@@ -1,15 +1,12 @@
 package at.fhwn.ma.serverapp.controller;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,10 +23,8 @@ import at.fhwn.ma.serverapp.dto.FrequencyDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadDTO;
 import at.fhwn.ma.serverapp.dto.WorkloadData;
 import at.fhwn.ma.serverapp.exception.CustomNotFoundException;
-import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.model.Client;
 import at.fhwn.ma.serverapp.service.ClientService;
-import at.fhwn.ma.serverapp.util.ResponseWrapper;
 
 @RestController
 @RequestMapping("/api")
@@ -179,7 +174,7 @@ public class ClientController {
 		}
 
         logger.info("Delete client with the id {}", id);
-		clientService.delete(id);
+		clientService.deleteClientById(id);
 		logger.info("Client with the id {} successfully deleted.", id);
 
 		return new ResponseEntity<>(HttpStatus.OK);

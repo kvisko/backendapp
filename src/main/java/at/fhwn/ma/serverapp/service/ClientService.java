@@ -119,10 +119,10 @@ public class ClientService implements IClientService {
 
 	@Override
 	@Transactional
-	public void delete(Long id) {
+	public void deleteClientById(Long id) {
 
 	    logger.debug("Deleting client with the id {} from the database.", id);
-		clientDataRepo.delete(id);
+		clientRepo.delete(id);
 	}
 
 	@Override
