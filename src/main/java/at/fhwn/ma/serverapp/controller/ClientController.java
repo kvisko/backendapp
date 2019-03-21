@@ -86,7 +86,7 @@ public class ClientController {
 
 	/* Check if client is available */
 	@RequestMapping(value = "/clients/clientAvailability/{id}", method = RequestMethod.GET)
-	public Boolean checkClientAvailability(@PathVariable Long id) {
+	public Boolean checkClientAvailabilityById(@PathVariable Long id) {
 		
 		logger.info("Check if the client with the id {} is available.", id);
 		Boolean availability = clientService.isClientAvailable(id);
@@ -110,7 +110,7 @@ public class ClientController {
 	
 	/* it works */
 	@RequestMapping(value = "/clients/getClientFrequencySettings/{id}", method = RequestMethod.GET)
-	public FrequencyDTO getClientFrequencySettings(@PathVariable Long id) {
+	public FrequencyDTO getClientFrequencySettingsById(@PathVariable Long id) {
 
 	    logger.info("Get data and collection frequencies for the client with the id {}.", id);
 		FrequencyDTO frequencyDTO = clientService.getClientFrequencySettingsById(id);
@@ -121,13 +121,13 @@ public class ClientController {
 
 	/* change client ip and client port. if change successful, save the settings to the dabase */
 	@RequestMapping(value = "/clients/setConfiguration/{id}", method = RequestMethod.POST)
-	public ResponseEntity<?> setConfiguration(@PathVariable Long id, @RequestBody ClientConfigDTO clientConfigDTO) {
+	public ResponseEntity<?> setConfigurationByClientId(@PathVariable Long id, @RequestBody ClientConfigDTO clientConfigDTO) {
 
 		logger.info("Set configuration for the client with the id {}.", id);
 		logger.info("Provided parameters: client IP - {}, client port - {}", clientConfigDTO.getIp(),
                 clientConfigDTO.getPort());
-		HttpStatus result = clientService.setConfiguration(id, clientConfigDTO);
-        logger.info("setConfiguration - {}.", result.getReasonPhrase());
+		HttpStatus result = clientService.setConfigurationById(id, clientConfigDTO);
+        logger.info("setConfigurationById - {}.", result.getReasonPhrase());
 
 		return new ResponseEntity<>(result);
 

@@ -283,7 +283,7 @@ public class ClientService implements IClientService {
 	}
 
 	@Override
-	public HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
+	public HttpStatus setConfigurationById(Long id, ClientConfigDTO clientConfigDTO) {
 
         logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
