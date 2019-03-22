@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -25,13 +24,13 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 
 /**
  * Created by milos on 17/03/2019.
  */
+
 public class ClientServiceTest extends ApplicationTest{
 
     @InjectMocks

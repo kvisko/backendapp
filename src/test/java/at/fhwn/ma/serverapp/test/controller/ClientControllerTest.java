@@ -6,12 +6,9 @@ import at.fhwn.ma.serverapp.model.Client;
 import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.service.ClientService;
 import at.fhwn.ma.serverapp.test.Util.ApplicationTest;
-import at.fhwn.ma.serverapp.util.ResponseWrapper;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by milos on 13/03/2019.
  */
+
 public class ClientControllerTest extends ApplicationTest{
 
     @InjectMocks
