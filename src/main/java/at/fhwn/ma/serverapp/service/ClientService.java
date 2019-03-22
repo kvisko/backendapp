@@ -7,10 +7,7 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +43,8 @@ public class ClientService implements IClientService {
 
 	@Autowired
 	private ClientRepository clientRepo;
+
+	private RestTemplate restTemplate = new RestTemplate();
 
 	@Override
 	public List<Client> loadAll() {
@@ -111,18 +110,18 @@ public class ClientService implements IClientService {
 		logger.debug("WorkloadDto data added to the list of ClientData.");
 
 		logger.debug("Persist list of ClientData.");
-		clientDataRepo.save(toBeInsertedClientData);
+        List<ClientData> insertedData = clientDataRepo.save(toBeInsertedClientData);
 		logger.debug("List of ClientData persisted.");
 
-		return toBeInsertedClientData;
+		return insertedData;
 	}
 
 	@Override
 	@Transactional
-	public void delete(Long id) {
+	public void deleteClientById(Long id) {
 
 	    logger.debug("Deleting client with the id {} from the database.", id);
-		clientDataRepo.delete(id);
+		clientRepo.delete(id);
 	}
 
 	@Override
@@ -159,7 +158,6 @@ public class ClientService implements IClientService {
 
 		try {
 		    logger.debug("Generating the getForObject method...");
-			RestTemplate restTemplate = new RestTemplate();
 			result = restTemplate.getForObject(echoUrl, Double.class);
 			logger.debug("Getting the response from the client...");
 
@@ -252,8 +250,6 @@ public class ClientService implements IClientService {
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				
-				RestTemplate restTemplate = new RestTemplate();
-
 				logger.debug("Generating the postForEntity method...");
 				ResponseEntity<FrequencyDTO> postResponse = restTemplate.postForEntity(changeFreqUrl, frequencyDTO, FrequencyDTO.class);
 				logger.debug("Getting the post method response...");
@@ -287,7 +283,7 @@ public class ClientService implements IClientService {
 	}
 
 	@Override
-	public HttpStatus setConfiguration(Long id, ClientConfigDTO clientConfigDTO) {
+	public HttpStatus setConfigurationById(Long id, ClientConfigDTO clientConfigDTO) {
 
         logger.debug("Retrieving client with the id {} from the database...", id);
 		Client client = clientRepo.findOne(id);
@@ -305,7 +301,6 @@ public class ClientService implements IClientService {
                 logger.debug("Client URL: {}", configUrl);
 
                 logger.debug("Generating the getForObject method...");
-				RestTemplate restTemplate = new RestTemplate();
 				HttpStatus result = restTemplate.getForObject(configUrl, HttpStatus.class);
                 logger.debug("Getting the get method response...");
 
