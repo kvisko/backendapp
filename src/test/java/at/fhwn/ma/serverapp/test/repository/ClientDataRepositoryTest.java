@@ -1,17 +1,14 @@
 package at.fhwn.ma.serverapp.test.repository;
 
-import at.fhwn.ma.serverapp.ServerApplication;
 import at.fhwn.ma.serverapp.model.Client;
 import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.repository.ClientDataRepository;
 import at.fhwn.ma.serverapp.repository.ClientRepository;
+import at.fhwn.ma.serverapp.test.Util.RepositoryTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Date;
 import java.util.List;
@@ -22,27 +19,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by milos on 16/03/2019.
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ServerApplication.class
-)
-@TestPropertySource(locations = "classpath:application-test.properties")
-public class ClientDataRepositoryTest {
+public class ClientDataRepositoryTest extends RepositoryTest {
 
-    @Autowired
-    private ClientDataRepository clientDataRepository;
 
     @Autowired
     private ClientRepository clientRepository;
 
-    private Client client = new Client();
-    private Client clientSaved = null;
+    @Autowired
+    private ClientDataRepository clientDataRepository;
 
     @Before
-    public void setup(){
+    public void h2dbSetup(){
 
         //given
+        Client client = new Client();
         client.setClientAllias("Milos");
         client.setClientIp("localhost");
         client.setClientPort("8888");
@@ -52,7 +42,7 @@ public class ClientDataRepositoryTest {
         client.setServerAllias("ServerApp");
         client.setServerIp("localhost");
         client.setServerPort("8080");
-        clientSaved = clientRepository.save(client);
+        Client clientSaved = clientRepository.save(client);
 
         ClientData clientData = new ClientData();
         clientData.setClientId(clientSaved.getClientId());
@@ -71,26 +61,40 @@ public class ClientDataRepositoryTest {
 
     }
 
+    @After
+    public void h2dbCleanup(){
+
+        clientDataRepository.deleteAll();
+        clientRepository.deleteAll();
+
+    }
+
     @Test
     public void insertWorkloadDataTest() {
 
         //given
+        Long ID = clientRepository.findAll().get(0).getClientId();
+        int SIZE = clientRepository.findOne(ID).getClientData().size();
         ClientData clientData = new ClientData();
-        clientData.setClientId(clientSaved.getClientId());
+        clientData.setClientId(ID);
         clientData.setCpuUsage(12D);
         clientData.setMemoryUsage(13D);
         clientData.setTimestamp(new Date());
         clientDataRepository.save(clientData);
 
-        Client insertWorkloadDataResilt = clientRepository.findOne(clientData.getClientId());
-        List<ClientData> clientDataList = insertWorkloadDataResilt.getClientData();
+        Client insertWorkloadDataResult = clientRepository.findOne(ID);
+        List<ClientData> clientDataList = insertWorkloadDataResult.getClientData();
 
         //get the index of the inserted WorkloadData
-        int CURRENT_INDEX = clientDataList.size()-1;
+        int CURRENT_LAST_INDEX = clientDataList.size()-1;
 
-        //assert that IClientDataRepository returns ClientData with matching CpuUsage
-        assertThat(clientDataList.get(CURRENT_INDEX).getCpuUsage())
+        //assert that ClientDataRepository returns last inserted ClientData with matching CpuUsage
+        assertThat(clientDataList.get(CURRENT_LAST_INDEX).getCpuUsage())
                 .isEqualTo(clientData.getCpuUsage());
+
+        //assert that ClientDataRepository returns ClientData list with all current data and size
+        assertThat(clientDataList.size())
+                .isEqualTo(SIZE + 1);
 
     }
 
@@ -98,23 +102,20 @@ public class ClientDataRepositoryTest {
     public void getAllDataByIdTest(){
 
     //given
+    Long ID = clientRepository.findAll().get(0).getClientId();
     int INDEX = 1;
     Double CPU_USAGE = 21D;
 
-    Client client = clientRepository.findOne(clientSaved.getClientId());
+    Client client = clientRepository.findOne(ID);
     List<ClientData> getAllDataByIdResult = client.getClientData();
 
-    //assert that IClientDataRepository returns non-empty list of objects
+    //assert that ClientDataRepository returns non-empty list of objects
     assertThat(getAllDataByIdResult)
             .isNotEmpty();
 
-    //assert that IClientDataRepository returns ClientData object with given CPU_USAGE at given index
+    //assert that ClientDataRepository returns ClientData object with given CPU_USAGE at given index
     assertThat(getAllDataByIdResult.get(INDEX).getCpuUsage())
             .isEqualTo(CPU_USAGE);
-
-    //assert that IClientDataRepository returns ClientData list with all current data and size
-    assertThat(getAllDataByIdResult.size())
-            .isEqualTo(2);
 
     }
 

@@ -1,18 +1,13 @@
 package at.fhwn.ma.serverapp.test.repository;
 
-import at.fhwn.ma.serverapp.ServerApplication;
 import at.fhwn.ma.serverapp.model.Client;
-import at.fhwn.ma.serverapp.model.ClientData;
 import at.fhwn.ma.serverapp.repository.ClientRepository;
+import at.fhwn.ma.serverapp.test.Util.RepositoryTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,23 +16,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by milos on 15/03/2019.
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ServerApplication.class
-)
-@TestPropertySource(locations = "classpath:application-test.properties")
-public class ClientRepositoryTest {
-
-    //TODO compiler throws DataIntegrityViolationException if ClientAllias has "unique" constraint,
-    //although alias of each client persisted in h2 is unique, otherwise tests pass
+public class ClientRepositoryTest extends RepositoryTest{
 
 
     @Autowired
     private ClientRepository clientRepository;
 
     @Before
-    public void setup(){
+    public void h2dbSetup(){
 
         //given
         Client client = new Client();
@@ -66,8 +52,16 @@ public class ClientRepositoryTest {
 
     }
 
+    @After
+    public void h2dbCleanup(){
+        clientRepository.deleteAll();
+    }
+
     @Test
     public void loadAllTest(){
+
+        //given
+        String ALIAS = "Milos2";
 
         List<Client> loadAllResult = clientRepository.findAll();
 
@@ -77,7 +71,7 @@ public class ClientRepositoryTest {
 
         //assert that IClientRepository returns Client with matching allias
         assertThat(loadAllResult.get(1).getClientAllias())
-                .isEqualTo("Milos2");
+                .isEqualTo(ALIAS);
 
     }
 
@@ -85,8 +79,8 @@ public class ClientRepositoryTest {
     public void findClientByIdTest(){
 
         //given
-        Long ID = 2L;
-        String ALIAS = "Milos2";
+        Long ID = clientRepository.findAll().get(0).getClientId();
+        String ALIAS = "Milos";
 
         Client result = clientRepository.findOne(ID);
 
@@ -112,11 +106,12 @@ public class ClientRepositoryTest {
         client2.setServerPort("8080");
         clientRepository.save(client2);
 
+        //persist new Client into the database
         Client createClientResult = clientRepository.save(client2);
 
         Client client = clientRepository.findOne(createClientResult.getClientId());
 
-        //assert that IClientRepository with ID from created Client returns Client with matching alliases
+        //assert that IClientRepository with ID from created Client returns Client with matching collection frequencies
         assertThat(client.getDataCollectionFrequency())
                 .isEqualTo(client2.getDataCollectionFrequency());
 
@@ -126,7 +121,7 @@ public class ClientRepositoryTest {
     public void isClientAvailableTest(){
 
         //given
-        Long ID = 1L;
+        Long ID = clientRepository.findAll().get(0).getClientId();
         Boolean AVAILABILITY = true;
 
         Client client = clientRepository.findOne(ID);
@@ -141,74 +136,47 @@ public class ClientRepositoryTest {
     @Test
     public void changeFrequencyByClientIdTest(){
 
-        //TODO h2 deletes all entries at this point so new Client has to be persisted for testing purposes, find out why
-
         //given
-        Double CURRENT_COLLECTION_FREQ = 3D;
-        Double CURRENT_UPLOAD_FREQ = 7D;
-        Double COLLECTION_FREQ = 4D;
-        Double UPLOAD_FREQ = 14D;
+        Long ID = clientRepository.findAll().get(0).getClientId();
+        Client client = clientRepository.findOne(ID);
+        Double CURRENT_COLLECTION_FREQ = client.getDataCollectionFrequency();
+        Double CURRENT_UPLOAD_FREQ = client.getDataUploadFrequency();
+        Double NEW_COLLECTION_FREQ = 4D;
+        Double NEW_UPLOAD_FREQ = 14D;
 
-        Client client = new Client();
-        client.setClientAllias("Milos");
-        client.setClientIp("localhost");
-        client.setClientPort("8888");
-        client.setDataCollectionFrequency(3D);
-        client.setDataUploadFrequency(7D);
-        client.setIsClientAvailable(true);
-        client.setServerAllias("ServerApp");
-        client.setServerIp("localhost");
-        client.setServerPort("8080");
-        Client clientSaved = clientRepository.save(client);
-
-
-        Client clientResult = clientRepository.findOne(clientSaved.getClientId());
-
-        //assert that IClientRepository with persisted client's ID returns current given frequencies
-        assertThat(clientResult.getDataCollectionFrequency())
+        //assert that ClientRepository with persisted client's ID returns current given frequencies
+        assertThat(client.getDataCollectionFrequency())
                 .isEqualTo(CURRENT_COLLECTION_FREQ);
-        assertThat(clientResult.getDataUploadFrequency())
+        assertThat(client.getDataUploadFrequency())
                 .isEqualTo(CURRENT_UPLOAD_FREQ);
 
         //set and persist new frequencies
-        clientResult.setDataCollectionFrequency(COLLECTION_FREQ);
-        clientResult.setDataUploadFrequency(UPLOAD_FREQ);
-        clientRepository.save(clientResult);
+        client.setDataCollectionFrequency(NEW_COLLECTION_FREQ);
+        client.setDataUploadFrequency(NEW_UPLOAD_FREQ);
+        clientRepository.save(client);
 
-        Client clientWithUpdatedFrequencies = clientRepository.findOne(clientSaved.getClientId());
+        Client clientWithUpdatedFrequencies = clientRepository.findOne(ID);
 
-        //assert that IClientRepository with persisted client's ID returns updated given frequencies
+        //assert that ClientRepository with persisted client's ID returns updated given frequencies
         assertThat(clientWithUpdatedFrequencies.getDataCollectionFrequency())
-                .isEqualTo(COLLECTION_FREQ);
+                .isEqualTo(NEW_COLLECTION_FREQ);
         assertThat(clientWithUpdatedFrequencies.getDataUploadFrequency())
-                .isEqualTo(UPLOAD_FREQ);
+                .isEqualTo(NEW_UPLOAD_FREQ);
 
     }
 
     @Test
     public void getClientFrequencySettingsByIdTest(){
 
-        //TODO h2 deletes all entries at this point so new Client has to be persisted for testing purposes, find out why
-
         //given
+        Long ID = clientRepository.findAll().get(0).getClientId();
+        Client client = clientRepository.findOne(ID);
         Double CURRENT_COLLECTION_FREQ = 3D;
         Double CURRENT_UPLOAD_FREQ = 7D;
 
-        Client client = new Client();
-        client.setClientAllias("Milos");
-        client.setClientIp("localhost");
-        client.setClientPort("8888");
-        client.setDataCollectionFrequency(3D);
-        client.setDataUploadFrequency(7D);
-        client.setIsClientAvailable(true);
-        client.setServerAllias("ServerApp");
-        client.setServerIp("localhost");
-        client.setServerPort("8080");
-        Client clientSaved = clientRepository.save(client);
+        Client clientResult = clientRepository.findOne(ID);
 
-        Client clientResult = clientRepository.findOne(clientSaved.getClientId());
-
-        //assert that IClientRepository with given persisted client's ID returns matching frequencies
+        //assert that ClientRepository with given persisted client's ID returns matching frequencies
         assertThat(clientResult.getDataCollectionFrequency())
                 .isEqualTo(CURRENT_COLLECTION_FREQ);
         assertThat(clientResult.getDataUploadFrequency())
@@ -219,47 +187,33 @@ public class ClientRepositoryTest {
     @Test
     public void setConfiguration(){
 
-        //TODO h2 deletes all entries at this point so new Client has to be persisted for testing purposes, find out why
-
         //given
-        Long ID = 1L;
+        Long ID = clientRepository.findAll().get(0).getClientId();
         String CURRENT_IP = "localhost";
         String CURRENT_PORT = "8888";
-        String IP = "newId";
-        String PORT = "newPort";
+        String NEW_IP = "newId";
+        String NEW_PORT = "newPort";
 
-        Client client = new Client();
-        client.setClientAllias("Milos");
-        client.setClientIp("localhost");
-        client.setClientPort("8888");
-        client.setDataCollectionFrequency(3D);
-        client.setDataUploadFrequency(7D);
-        client.setIsClientAvailable(true);
-        client.setServerAllias("ServerApp");
-        client.setServerIp("localhost");
-        client.setServerPort("8080");
-        Client clientSaved = clientRepository.save(client);
+        Client clientResult = clientRepository.findOne(ID);
 
-        Client clientResult = clientRepository.findOne(clientSaved.getClientId());
-
-        //assert that IClientRepository with persisted client's ID returns current given frequencies
+        //assert that ClientRepository with persisted client's ID returns current given frequencies
         assertThat(clientResult.getClientIp()).
                 isEqualTo(CURRENT_IP);
         assertThat(clientResult.getClientPort()).
                 isEqualTo(CURRENT_PORT);
 
         //set and persist new configuration
-        clientResult.setClientIp(IP);
-        clientResult.setClientPort(PORT);
+        clientResult.setClientIp(NEW_IP);
+        clientResult.setClientPort(NEW_PORT);
         clientRepository.save(clientResult);
 
         Client setConfiguraionResult = clientRepository.findOne(clientResult.getClientId());
 
-        //assert that IClientRepository with persisted client's ID returns updated given configuration
+        //assert that ClientRepository with persisted client's ID returns updated given configuration
         assertThat(setConfiguraionResult.getClientIp())
-                .isEqualTo(IP);
+                .isEqualTo(NEW_IP);
         assertThat(setConfiguraionResult.getClientPort())
-                .isEqualTo(PORT);
+                .isEqualTo(NEW_PORT);
 
     }
 
@@ -267,7 +221,7 @@ public class ClientRepositoryTest {
     public void deleteTest(){
 
         //given
-        Long ID = 1L;
+        Long ID = clientRepository.findAll().get(0).getClientId();
 
         Client client = clientRepository.findOne(ID);
 
@@ -275,6 +229,7 @@ public class ClientRepositoryTest {
         assertThat(client)
                 .isNotNull();
 
+        //delete Client from the database
         clientRepository.delete(client.getClientId());
 
         Client deleteResult = clientRepository.findOne(ID);
